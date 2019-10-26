@@ -7,5 +7,15 @@
   "license": "MIT",
   "dependencies": {
     "@openzeppelin/contracts": "^2.3.0"
+  },
+  "devDependencies": {
+    "bignumber.js": "^9.0.0",
+    "bn-chai": "^1.0.1",
+    "bn.js": "^5.0.0",
+    "dotenv": "^8.1.0",
+    "truffle-hdwallet-provider": "^1.0.17",
+    "truffle-test-utils": "^0.1.0",
+    "chai": "^4.2.0",
+    "chai-bignumber": "^3.0.0"
   }
 }
