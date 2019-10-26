@@ -1,0 +1,11 @@
+{
+  "name": "wcc",
+  "version": "1.0.0",
+  "description": "POC of Wrapped Coffee Coin",
+  "main": "index.js",
+  "author": "Affogato",
+  "license": "MIT",
+  "dependencies": {
+    "@openzeppelin/contracts": "^2.3.0"
+  }
+}
