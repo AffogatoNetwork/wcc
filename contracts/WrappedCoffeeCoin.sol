@@ -18,7 +18,7 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable {
      * Requirements:
      *
      * - the caller must have the `MinterRole`.
-     
+
     function mint(address account, uint256 amount) public onlyMinter returns (bool) {
         _mint(account, amount);
         return true;
