@@ -5,10 +5,18 @@
   "main": "index.js",
   "author": "Affogato",
   "license": "MIT",
+  "scripts": {
+    "generate": "truffle compile && typechain --target truffle './build/**/*.json'",
+    "prepare": "yarn generate",
+    "test": "truffle test && yarn tsc",
+    "tsc": "tsc --noEmit"
+  },
   "dependencies": {
-    "@openzeppelin/contracts": "^2.3.0"
+    "@openzeppelin/contracts": "^2.3.0",
+    "truffle": "^5.0.42"
   },
   "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.3",
     "bignumber.js": "^9.0.0",
     "bn-chai": "^1.0.1",
     "bn.js": "^5.0.0",
@@ -26,6 +34,11 @@
     "prettier": "^1.18.2",
     "pretty-quick": "^1.11.1",
     "truffle-hdwallet-provider": "^1.0.17",
-    "truffle-test-utils": "^0.1.0"
+    "truffle-test-utils": "^0.1.0",
+    "truffle-typings": "^1.0.8",
+    "ts-node": "^8.4.1",
+    "typechain": "^1.0.3",
+    "typechain-target-truffle": "^1.0.0",
+    "typescript": "^3.6.4"
   }
 }
