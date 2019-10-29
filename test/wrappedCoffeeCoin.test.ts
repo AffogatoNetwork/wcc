@@ -1,22 +1,18 @@
 require("chai").should();
 require("chai").expect;
-var BN = web3.utils.BN;
-require("chai").use(require("chai-bignumber")(BN));
+//Zeppeling helpers
+//@ts-ignore
+const { BN, constants, balance, expectEvent, expectRevert } = require("@openzeppelin/test-helpers");
 
-var WrappedCoffeeCoin = artifacts.require("./WrappedCoffeeCoin.sol");
+var WrappedCoffeeCoin = artifacts.require("WrappedCoffeeCoin");
 
-contract(WrappedCoffeeCoin, function(accounts) {
-  beforeEach(async () => {
-    this.tokenInstance = await WrappedCoffeeCoin.deployed();
-  });
-
+contract("WrappedCoffeeCoin", accounts => {
   describe("ERC20 Validations", () => {
-    before(async () => {});
-
     it("...should set the token details", async () => {
-      let name = await this.tokenInstance.name();
-      let symbol = await this.tokenInstance.symbol();
-      let decimals = await this.tokenInstance.decimals();
+      const wrappedCoffeeCoin = await WrappedCoffeeCoin.new({ from: accounts[0] });
+      let name = await wrappedCoffeeCoin.name();
+      let symbol = await wrappedCoffeeCoin.symbol();
+      let decimals = await wrappedCoffeeCoin.decimals();
       name.should.be.equal("Wrapped Coffee Coin");
       symbol.should.be.equal("WCC");
       decimals.toNumber().should.be.equal(0);
