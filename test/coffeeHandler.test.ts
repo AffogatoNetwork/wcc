@@ -11,7 +11,7 @@ var CoffeeHandler = artifacts.require("CoffeeHandler");
 contract("CoffeeHandler", (accounts: any) => {
   describe("Coffee Handler Validations", () => {
     const DAI_CONTRACT = "0xC4375B7De8af5a38a93548eb8453a498222C4fF2";
-    const WCC_CONTRACT = "0x1655a4c1fa32139ac1de4ca0015fc22429933115";
+    const WCC_CONTRACT = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
 
     it("...should set the DAI contract", async () => {
       const coffeeHandler = await CoffeeHandler.new({ from: accounts[0] });
