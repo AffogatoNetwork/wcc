@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
 
 contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable {
 
-    address public _DAI_CONTRACT;
-    address public _COFFEE_HANDLER_CONTRACT;
+    address public DAI_CONTRACT;
+    address public COFFEE_HANDLER_CONTRACT;
 
     constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 0) public {
     }
