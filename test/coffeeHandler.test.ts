@@ -5,13 +5,18 @@ require("chai").expect;
 
 //@ts-ignore
 const { BN, constants, balance, expectEvent, expectRevert } = require("@openzeppelin/test-helpers");
-//@ts-ignore
 var CoffeeHandler = artifacts.require("CoffeeHandler");
-//@ts-ignore
+var DaiToken = artifacts.require("DaiToken");
+
 contract("CoffeeHandler", accounts => {
 	describe("Coffee Handler Validations", () => {
-		const DAI_CONTRACT = "0xC4375B7De8af5a38a93548eb8453a498222C4fF2";
+		let DAI_CONTRACT = constants.ZERO_ADDRESS;
 		const WCC_CONTRACT = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
+
+		before(async () => {
+			let daiToken = await DaiToken.deployed();
+			DAI_CONTRACT = daiToken.address;
+		});
 
 		it("...should set the DAI contract", async () => {
 			let coffeeHandler = await CoffeeHandler.deployed();
@@ -51,9 +56,14 @@ contract("CoffeeHandler", accounts => {
 			currentWCCContract.should.be.equal(WCC_CONTRACT, "WCC Contract must be updated");
 		});
 
-		it("...should mint WCC", async () => {
+		it("...should allow validators to stake DAI", async () => {
 			let coffeeHandler = await CoffeeHandler.deployed();
-			let currentWCCContract = await coffeeHandler.WCC_CONTRACT();
+			let daiToken = await DaiToken.deployed();
+			let daiBalance = await daiToken.balanceOf(coffeeHandler.address);
+			daiBalance.toNumber().should.equal(0, "Dai Balance should be 0");
+			//mint dai
+			//allow to stake
+			//increase the balance of the contract
 		});
 	});
 });
