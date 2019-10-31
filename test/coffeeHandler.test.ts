@@ -1,3 +1,5 @@
+import BigNumber from "bignumber.js";
+
 require("chai").should();
 require("chai").expect;
 
@@ -10,8 +12,9 @@ var DaiToken = artifacts.require("DaiToken");
 
 contract("CoffeeHandler", accounts => {
 	describe("Coffee Handler Validations", () => {
-		let DAI_CONTRACT = constants.ZERO_ADDRESS;
-		const WCC_CONTRACT = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
+		let DAI_CONTRACT: string = constants.ZERO_ADDRESS;
+		const WCC_CONTRACT: string = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
+		const STAKE_DAI_AMOUNT: BigNumber = new BN(100);
 
 		before(async () => {
 			let daiToken = await DaiToken.deployed();
@@ -61,9 +64,28 @@ contract("CoffeeHandler", accounts => {
 			let daiToken = await DaiToken.deployed();
 			let daiBalance = await daiToken.balanceOf(coffeeHandler.address);
 			daiBalance.toNumber().should.equal(0, "Dai Balance should be 0");
-			//mint dai
-			//allow to stake
-			//increase the balance of the contract
+			await expectRevert(
+				coffeeHandler.stakeDAI(STAKE_DAI_AMOUNT, { from: accounts[1] }),
+				"Not enough balance"
+			);
+			await daiToken.faucet(1000, { from: accounts[1] });
+			await expectRevert(
+				coffeeHandler.stakeDAI(STAKE_DAI_AMOUNT, { from: accounts[1] }),
+				"Contract allowance is to low or not approved"
+			);
+			await daiToken.approve(coffeeHandler.address, STAKE_DAI_AMOUNT, { from: accounts[1] });
+			const receipt = await coffeeHandler.stakeDAI(STAKE_DAI_AMOUNT, { from: accounts[1] });
+			expectEvent(receipt, "LogStakeDAI", {
+				_staker: accounts[1],
+				_amount: STAKE_DAI_AMOUNT
+			});
+			daiBalance = await daiToken.balanceOf(coffeeHandler.address);
+			expect(daiBalance.toNumber()).to.equal(
+				STAKE_DAI_AMOUNT.toNumber(),
+				"Dai Balance should increase to stake"
+			);
+			daiBalance = await daiToken.balanceOf(accounts[1]);
+			expect(daiBalance.toNumber()).to.equal(900, "Validator's Dai Balance should decrease");
 		});
 	});
 });
