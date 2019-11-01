@@ -77,15 +77,23 @@ contract("CoffeeHandler", accounts => {
 			const receipt = await coffeeHandler.stakeDAI(STAKE_DAI_AMOUNT, { from: accounts[1] });
 			expectEvent(receipt, "LogStakeDAI", {
 				_staker: accounts[1],
-				_amount: STAKE_DAI_AMOUNT
+				_amount: STAKE_DAI_AMOUNT,
+				_currentStake: STAKE_DAI_AMOUNT
 			});
 			daiBalance = await daiToken.balanceOf(coffeeHandler.address);
 			expect(daiBalance.toNumber()).to.equal(
 				STAKE_DAI_AMOUNT.toNumber(),
 				"Dai Balance should increase to stake"
 			);
+			const currentStake = await coffeeHandler.userToStake(accounts[1]);
+			expect(currentStake.toNumber()).to.equal(
+				STAKE_DAI_AMOUNT.toNumber(),
+				"Stake counter should increase"
+			);
 			daiBalance = await daiToken.balanceOf(accounts[1]);
 			expect(daiBalance.toNumber()).to.equal(900, "Validator's Dai Balance should decrease");
 		});
+
+		it("...should allow validators to remove stake of DAI", async () => {});
 	});
 });
