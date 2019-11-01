@@ -7,10 +7,12 @@ contract CoffeeHandler is Ownable {
 
     event LogSetDAIContract(address indexed _owner, IERC20 _contract);
     event LogSetWCCContract(address indexed _owner, IERC20 _contract);
+	 event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
 
     using SafeMath for uint256;
     IERC20 public WCC_CONTRACT;
     IERC20 public DAI_CONTRACT;
+	 mapping (address => uint) public userToStake;
 
     function setDAIContract(IERC20 _DAI_CONTRACT) public onlyOwner{
       DAI_CONTRACT = _DAI_CONTRACT;
@@ -22,8 +24,16 @@ contract CoffeeHandler is Ownable {
       emit LogSetWCCContract(msg.sender, _WCC_CONTRACT);
     }
 
+	 function stakeDAI(uint _amount) public {
+		require(DAI_CONTRACT.balanceOf(msg.sender) >= _amount, "Not enough balance");
+		require(DAI_CONTRACT.allowance(msg.sender, address(this)) >= _amount, "Contract allowance is to low or not approved");
+		DAI_CONTRACT.transferFrom(msg.sender, address(this), _amount);
+		userToStake[msg.sender] = userToStake[msg.sender].add(_amount);
+		emit LogStakeDAI(msg.sender, _amount, userToStake[msg.sender]);
+	 }
+
     //Allow to mint token
     //Allow to burn token
-    //Stake DAI
+	 //Allow to retrieve stake
 
 }
