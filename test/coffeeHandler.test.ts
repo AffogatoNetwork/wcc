@@ -1,17 +1,25 @@
+import BigNumber from "bignumber.js";
+
 require("chai").should();
 require("chai").expect;
 
 //Zeppeling helpers
-
 //@ts-ignore
 const { BN, constants, balance, expectEvent, expectRevert } = require("@openzeppelin/test-helpers");
-//@ts-ignore
 var CoffeeHandler = artifacts.require("CoffeeHandler");
-//@ts-ignore
+var DaiToken = artifacts.require("DaiToken");
+
 contract("CoffeeHandler", accounts => {
 	describe("Coffee Handler Validations", () => {
-		const DAI_CONTRACT = "0xC4375B7De8af5a38a93548eb8453a498222C4fF2";
-		const WCC_CONTRACT = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
+		let DAI_CONTRACT: string = constants.ZERO_ADDRESS;
+		const WCC_CONTRACT: string = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
+		const STAKE_DAI_AMOUNT: BigNumber = new BN(100);
+		const BIGGER_STAKE_DAI_AMOUNT: BigNumber = new BN(1000);
+
+		before(async () => {
+			let daiToken = await DaiToken.deployed();
+			DAI_CONTRACT = daiToken.address;
+		});
 
 		it("...should set the DAI contract", async () => {
 			let coffeeHandler = await CoffeeHandler.deployed();
@@ -51,9 +59,65 @@ contract("CoffeeHandler", accounts => {
 			currentWCCContract.should.be.equal(WCC_CONTRACT, "WCC Contract must be updated");
 		});
 
-		it("...should mint WCC", async () => {
+		it("...should allow validators to stake DAI", async () => {
 			let coffeeHandler = await CoffeeHandler.deployed();
-			let currentWCCContract = await coffeeHandler.WCC_CONTRACT();
+			let daiToken = await DaiToken.deployed();
+			let daiBalance = await daiToken.balanceOf(coffeeHandler.address);
+			daiBalance.toNumber().should.equal(0, "DAI Balance should be 0");
+			await expectRevert(
+				coffeeHandler.stakeDAI(STAKE_DAI_AMOUNT, { from: accounts[1] }),
+				"Not enough balance"
+			);
+			await daiToken.faucet(1000, { from: accounts[1] });
+			await expectRevert(
+				coffeeHandler.stakeDAI(STAKE_DAI_AMOUNT, { from: accounts[1] }),
+				"Contract allowance is to low or not approved"
+			);
+			await daiToken.approve(coffeeHandler.address, STAKE_DAI_AMOUNT, { from: accounts[1] });
+			const receipt = await coffeeHandler.stakeDAI(STAKE_DAI_AMOUNT, { from: accounts[1] });
+			expectEvent(receipt, "LogStakeDAI", {
+				_staker: accounts[1],
+				_amount: STAKE_DAI_AMOUNT,
+				_currentStake: STAKE_DAI_AMOUNT
+			});
+			daiBalance = await daiToken.balanceOf(coffeeHandler.address);
+			expect(daiBalance.toNumber()).to.equal(
+				STAKE_DAI_AMOUNT.toNumber(),
+				"Dai Balance should increase to stake"
+			);
+			const currentStake = await coffeeHandler.userToStake(accounts[1]);
+			expect(currentStake.toNumber()).to.equal(
+				STAKE_DAI_AMOUNT.toNumber(),
+				"Stake counter should increase"
+			);
+			daiBalance = await daiToken.balanceOf(accounts[1]);
+			expect(daiBalance.toNumber()).to.equal(900, "Validator's DAI Balance should decrease");
+		});
+
+		it("...should allow validators to remove stake of DAI", async () => {
+			let coffeeHandler = await CoffeeHandler.deployed();
+			let daiToken = await DaiToken.deployed();
+			await expectRevert(
+				coffeeHandler.removeStakedDAI(BIGGER_STAKE_DAI_AMOUNT, { from: accounts[1] }),
+				"Amount bigger than current available to retrive"
+			);
+			const receipt = await coffeeHandler.removeStakedDAI(STAKE_DAI_AMOUNT, {
+				from: accounts[1]
+			});
+			expectEvent(receipt, "LogRemoveStakedDAI", {
+				_staker: accounts[1],
+				_amount: STAKE_DAI_AMOUNT,
+				_currentStake: new BN(0)
+			});
+			let daiBalance = await daiToken.balanceOf(coffeeHandler.address);
+			expect(daiBalance.toNumber()).to.equal(
+				0,
+				"DAI Balance should decrease to retrieved stake"
+			);
+			const currentStake = await coffeeHandler.userToStake(accounts[1]);
+			expect(currentStake.toNumber()).to.equal(0, "Stake counter should increase");
+			daiBalance = await daiToken.balanceOf(accounts[1]);
+			expect(daiBalance.toNumber()).to.equal(1000, "Validator's DAI Balance should decrease");
 		});
 	});
 });
