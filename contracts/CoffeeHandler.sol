@@ -8,6 +8,7 @@ contract CoffeeHandler is Ownable {
     event LogSetDAIContract(address indexed _owner, IERC20 _contract);
     event LogSetWCCContract(address indexed _owner, IERC20 _contract);
 	 event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
+	 event LogRemoveStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
 
     using SafeMath for uint256;
     IERC20 public WCC_CONTRACT;
@@ -32,8 +33,14 @@ contract CoffeeHandler is Ownable {
 		emit LogStakeDAI(msg.sender, _amount, userToStake[msg.sender]);
 	 }
 
+	 function removeStakedDAI(uint _amount) public {
+		require(userToStake[msg.sender] >= _amount, "Amount bigger than current available to retrive");
+		userToStake[msg.sender] = userToStake[msg.sender].sub(_amount);
+		DAI_CONTRACT.transfer(msg.sender, _amount);
+		emit LogRemoveStakedDAI(msg.sender, _amount, userToStake[msg.sender]);
+	 }
+
     //Allow to mint token
     //Allow to burn token
-	 //Allow to retrieve stake
 
 }

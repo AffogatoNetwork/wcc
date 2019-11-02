@@ -9,6 +9,7 @@
 		"generate": "truffle compile && typechain --target truffle './build/**/*.json'",
 		"prepare": "yarn generate",
 		"test": "truffle test && yarn tsc",
+		"ct": "yarn generate && yarn test",
 		"tsc": "tsc --noEmit"
 	},
 	"dependencies": {
