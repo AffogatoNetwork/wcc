@@ -13,6 +13,7 @@ contract("CoffeeHandler", accounts => {
 	describe("Coffee Handler Validations", () => {
 		let DAI_CONTRACT: string = constants.ZERO_ADDRESS;
 		const WCC_CONTRACT: string = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
+		const COFFEE_PRICE: BigNumber = new BN(10365);
 		const STAKE_DAI_AMOUNT: BigNumber = new BN(100);
 		const BIGGER_STAKE_DAI_AMOUNT: BigNumber = new BN(1000);
 
@@ -57,6 +58,27 @@ contract("CoffeeHandler", accounts => {
 			});
 			currentWCCContract = await coffeeHandler.WCC_CONTRACT();
 			currentWCCContract.should.be.equal(WCC_CONTRACT, "WCC Contract must be updated");
+		});
+
+		it("...should set the Coffee Commodity price", async () => {
+			let coffeeHandler = await CoffeeHandler.deployed();
+			let currentCoffeePrice = await coffeeHandler.COFFEE_PRICE();
+			await expectRevert(
+				coffeeHandler.setCoffeePrice(COFFEE_PRICE, { from: accounts[1] }),
+				"Ownable: caller is not the owner"
+			);
+			const receipt = await coffeeHandler.setCoffeePrice(COFFEE_PRICE, {
+				from: accounts[0]
+			});
+			expectEvent(receipt, "LogSetCoffeePrice", {
+				_owner: accounts[0],
+				_coffeePrice: COFFEE_PRICE
+			});
+			currentCoffeePrice = await coffeeHandler.COFFEE_PRICE();
+			expect(currentCoffeePrice.toNumber()).to.be.equal(
+				COFFEE_PRICE.toNumber(),
+				"Coffee Price must be updated"
+			);
 		});
 
 		it("...should allow validators to stake DAI", async () => {
