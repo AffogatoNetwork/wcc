@@ -20,7 +20,7 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
         renounceMinter();
     }
 
-    /** 
+    /**
      * @notice Called when a minter wants to create new tokens.
      * @dev See `ERC20._mint`.
      *
@@ -37,7 +37,7 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
      * @notice Returns the hash pointer to the file containing the details about the coffee this token represents.
      *
      */
-    function getCoffee() public returns(string memory) {
+    function getCoffee() public view returns(string memory) {
         return ipfsHash;
     }
 

@@ -1,10 +1,9 @@
-import BigNumber from "bignumber.js";
+// import BigNumber from "bignumber.js";
 
 require("chai").should();
 require("chai").expect;
 
 //Zeppeling helpers
-
 //@ts-ignore
 const { BN, constants, balance, expectEvent, expectRevert } = require("@openzeppelin/test-helpers");
 var CoffeeHandler = artifacts.require("CoffeeHandler");
@@ -14,7 +13,10 @@ contract("CoffeeHandler", accounts => {
 	describe("Coffee Handler Validations", () => {
 		let DAI_CONTRACT: string = constants.ZERO_ADDRESS;
 		const WCC_CONTRACT: string = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
-		const STAKE_DAI_AMOUNT: BigNumber = new BN(100);
+		const COFFEE_PRICE: BN = new BN(109);
+		const STAKE_DAI_AMOUNT: BN = new BN(web3.utils.toWei("100"));
+		const BIGGER_STAKE_DAI_AMOUNT: BN = new BN(web3.utils.toWei("1000"));
+		const STAKE_RATE: BN = new BN(web3.utils.toWei("150"));
 
 		before(async () => {
 			let daiToken = await DaiToken.deployed();
@@ -59,11 +61,51 @@ contract("CoffeeHandler", accounts => {
 			currentWCCContract.should.be.equal(WCC_CONTRACT, "WCC Contract must be updated");
 		});
 
+		it("...should set the Coffee Commodity price", async () => {
+			let coffeeHandler = await CoffeeHandler.deployed();
+			let currentCoffeePrice = await coffeeHandler.COFFEE_PRICE();
+			await expectRevert(
+				coffeeHandler.setCoffeePrice(COFFEE_PRICE, { from: accounts[1] }),
+				"Ownable: caller is not the owner"
+			);
+			const receipt = await coffeeHandler.setCoffeePrice(COFFEE_PRICE, {
+				from: accounts[0]
+			});
+			expectEvent(receipt, "LogSetCoffeePrice", {
+				_owner: accounts[0],
+				_coffeePrice: COFFEE_PRICE
+			});
+			currentCoffeePrice = await coffeeHandler.COFFEE_PRICE();
+			expect(currentCoffeePrice.toNumber()).to.be.equal(
+				COFFEE_PRICE.toNumber(),
+				"Coffee Price must be updated"
+			);
+		});
+
+		it("...should set the stake rate", async () => {
+			let coffeeHandler = await CoffeeHandler.deployed();
+			let currentStakeRate = await coffeeHandler.STAKE_RATE();
+			await expectRevert(
+				coffeeHandler.setStakeRate(STAKE_RATE, { from: accounts[1] }),
+				"Ownable: caller is not the owner"
+			);
+			const receipt = await coffeeHandler.setStakeRate(STAKE_RATE, {
+				from: accounts[0]
+			});
+			expectEvent(receipt, "LogSetStakeRate", {
+				_owner: accounts[0],
+				_stakeRate: STAKE_RATE
+			});
+			currentStakeRate = await coffeeHandler.STAKE_RATE();
+			console.log("TCL: currentStakeRate", currentStakeRate);
+			expect(currentStakeRate).to.be.equal(STAKE_RATE, "Stake rate must be updated");
+		});
+
 		it("...should allow validators to stake DAI", async () => {
 			let coffeeHandler = await CoffeeHandler.deployed();
 			let daiToken = await DaiToken.deployed();
 			let daiBalance = await daiToken.balanceOf(coffeeHandler.address);
-			daiBalance.toNumber().should.equal(0, "Dai Balance should be 0");
+			daiBalance.toNumber().should.equal(0, "DAI Balance should be 0");
 			await expectRevert(
 				coffeeHandler.stakeDAI(STAKE_DAI_AMOUNT, { from: accounts[1] }),
 				"Not enough balance"
@@ -91,9 +133,38 @@ contract("CoffeeHandler", accounts => {
 				"Stake counter should increase"
 			);
 			daiBalance = await daiToken.balanceOf(accounts[1]);
-			expect(daiBalance.toNumber()).to.equal(900, "Validator's Dai Balance should decrease");
+			expect(daiBalance.toNumber()).to.equal(900, "Validator's DAI Balance should decrease");
 		});
 
-		it("...should allow validators to remove stake of DAI", async () => {});
+		it("...should allow validators to remove stake of DAI", async () => {
+			let coffeeHandler = await CoffeeHandler.deployed();
+			let daiToken = await DaiToken.deployed();
+			await expectRevert(
+				coffeeHandler.removeStakedDAI(BIGGER_STAKE_DAI_AMOUNT, { from: accounts[1] }),
+				"Amount bigger than current available to retrive"
+			);
+			const receipt = await coffeeHandler.removeStakedDAI(STAKE_DAI_AMOUNT, {
+				from: accounts[1]
+			});
+			expectEvent(receipt, "LogRemoveStakedDAI", {
+				_staker: accounts[1],
+				_amount: STAKE_DAI_AMOUNT,
+				_currentStake: new BN(0)
+			});
+			let daiBalance = await daiToken.balanceOf(coffeeHandler.address);
+			expect(daiBalance.toNumber()).to.equal(0, "DAI Balance should decrease to retrieved stake");
+			const currentStake = await coffeeHandler.userToStake(accounts[1]);
+			expect(currentStake.toNumber()).to.equal(0, "Stake counter should increase");
+			daiBalance = await daiToken.balanceOf(accounts[1]);
+			expect(daiBalance.toNumber()).to.equal(1000, "Validator's DAI Balance should decrease");
+		});
+
+		it("...should allow validators to mint WCC", async () => {
+			let coffeeHandler = await CoffeeHandler.deployed();
+			await expectRevert(
+				coffeeHandler.mintTokens(STAKE_DAI_AMOUNT, { from: accounts[1] }),
+				"Not enough DAI Staked"
+			);
+		});
 	});
 });
