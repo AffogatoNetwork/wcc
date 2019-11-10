@@ -7,15 +7,18 @@ contract CoffeeHandler is Ownable {
 
   event LogSetDAIContract(address indexed _owner, IERC20 _contract);
   event LogSetWCCContract(address indexed _owner, IERC20 _contract);
-	event LogSetCoffeePrice(address indexed _owner, uint _coffeePrice);
-	event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
-	event LogRemoveStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
+  event LogSetCoffeePrice(address indexed _owner, uint _coffeePrice);
+	event LogSetStakeRate(address indexed _owner, uint _stakeRate);
+  event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
+  event LogRemoveStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
 
   using SafeMath for uint256;
   IERC20 public WCC_CONTRACT;
   IERC20 public DAI_CONTRACT;
-	uint public COFFEE_PRICE;
-	mapping (address => uint) public userToStake;
+  uint public COFFEE_PRICE; /** @dev *100 for use of decimals  */
+	uint public STAKE_RATE; /** @dev percentage value  */
+  mapping (address => uint) public userToStake;
+	mapping (address => uint) public tokensUsed;
 
   function setDAIContract(IERC20 _DAI_CONTRACT) public onlyOwner{
     DAI_CONTRACT = _DAI_CONTRACT;
@@ -27,27 +30,36 @@ contract CoffeeHandler is Ownable {
     emit LogSetWCCContract(msg.sender, _WCC_CONTRACT);
   }
 
-	function setCoffeePrice(uint _COFFEE_PRICE) public onlyOwner{
+  function setCoffeePrice(uint _COFFEE_PRICE) public onlyOwner{
     COFFEE_PRICE = _COFFEE_PRICE;
     emit LogSetCoffeePrice(msg.sender, _COFFEE_PRICE);
   }
 
-	function stakeDAI(uint _amount) public {
-  	require(DAI_CONTRACT.balanceOf(msg.sender) >= _amount, "Not enough balance");
-		require(DAI_CONTRACT.allowance(msg.sender, address(this)) >= _amount, "Contract allowance is to low or not approved");
-		DAI_CONTRACT.transferFrom(msg.sender, address(this), _amount);
-		userToStake[msg.sender] = userToStake[msg.sender].add(_amount);
-		emit LogStakeDAI(msg.sender, _amount, userToStake[msg.sender]);
-	}
+	function setStakeRate(uint _STAKE_RATE) public onlyOwner{
+    STAKE_RATE = _STAKE_RATE;
+    emit LogSetStakeRate(msg.sender, _STAKE_RATE);
+  }
 
-	function removeStakedDAI(uint _amount) public {
-		require(userToStake[msg.sender] >= _amount, "Amount bigger than current available to retrive");
-		userToStake[msg.sender] = userToStake[msg.sender].sub(_amount);
-		DAI_CONTRACT.transfer(msg.sender, _amount);
-		emit LogRemoveStakedDAI(msg.sender, _amount, userToStake[msg.sender]);
+  function stakeDAI(uint _amount) public {
+    require(DAI_CONTRACT.balanceOf(msg.sender) >= _amount, "Not enough balance");
+    require(DAI_CONTRACT.allowance(msg.sender, address(this)) >= _amount, "Contract allowance is to low or not approved");
+    DAI_CONTRACT.transferFrom(msg.sender, address(this), _amount);
+    userToStake[msg.sender] = userToStake[msg.sender].add(_amount);
+    emit LogStakeDAI(msg.sender, _amount, userToStake[msg.sender]);
+  }
+
+  function removeStakedDAI(uint _amount) public {
+	  require(userToStake[msg.sender] >= _amount, "Amount bigger than current available to retrive");
+	  userToStake[msg.sender] = userToStake[msg.sender].sub(_amount);
+	  DAI_CONTRACT.transfer(msg.sender, _amount);
+	  emit LogRemoveStakedDAI(msg.sender, _amount, userToStake[msg.sender]);
+  }
+
+	function mintTokens(uint _amount) public {
+		// uint expectedAvailable = COFFEE_PRICE.mul(STAKE_RATE.div(150));
+		// require(tokensUsed[msg.sender], "Not enough DAI Staked");
 	}
 
     //Allow to mint token
     //Allow to burn token
-
 }
