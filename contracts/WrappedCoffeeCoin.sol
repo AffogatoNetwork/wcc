@@ -14,7 +14,10 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
 
     string private ipfsHash;
 
-    constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 0) public {
+    constructor(address _tokenHandler) ERC20Detailed("Wrapped Coffee Coin", "WCC", 0) public {
+        require(_tokenHandler != address(0x0), "Cannot add the 0x0 address as minter");
+        addMinter(_tokenHandler);
+        renounceMinter();
     }
 
     /** 
