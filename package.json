@@ -12,12 +12,12 @@
 		"test": "npx buidler test"
 	},
 	"dependencies": {
+		"@openzeppelin/contracts": "^2.4.0",
 		"scrypt": "^6.0.3"
 	},
 	"devDependencies": {
 		"@nomiclabs/buidler": "^1.0.1",
 		"@nomiclabs/buidler-ethers": "^1.0.1",
-		"@openzeppelin/test-helpers": "^0.5.3",
 		"@types/chai": "^4.2.4",
 		"chai": "^4.2.0",
 		"dotenv": "^8.1.0",

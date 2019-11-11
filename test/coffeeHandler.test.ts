@@ -22,7 +22,7 @@ describe("CoffeeHandler", () => {
 
 	describe("Coffee Handler Validations", () => {
 		let DAI_CONTRACT: string = constants.AddressZero;
-		const WCC_CONTRACT: string = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
+		const WCC_CONTRACT: string = constants.AddressZero;
 		const COFFEE_PRICE = 109;
 		const STAKE_DAI_AMOUNT = utils.parseEther("100");
 		const BIGGER_STAKE_DAI_AMOUNT = utils.parseEther("1000");

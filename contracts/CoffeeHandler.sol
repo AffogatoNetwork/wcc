@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.5.11;
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -8,7 +8,7 @@ contract CoffeeHandler is Ownable {
   event LogSetDAIContract(address indexed _owner, IERC20 _contract);
   event LogSetWCCContract(address indexed _owner, IERC20 _contract);
   event LogSetCoffeePrice(address indexed _owner, uint _coffeePrice);
-	event LogSetStakeRate(address indexed _owner, uint _stakeRate);
+  event LogSetStakeRate(address indexed _owner, uint _stakeRate);
   event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
   event LogRemoveStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
 
@@ -16,9 +16,9 @@ contract CoffeeHandler is Ownable {
   IERC20 public WCC_CONTRACT;
   IERC20 public DAI_CONTRACT;
   uint public COFFEE_PRICE; /** @dev *100 for use of decimals  */
-	uint public STAKE_RATE; /** @dev percentage value  */
+  uint public STAKE_RATE; /** @dev percentage value  */
   mapping (address => uint) public userToStake;
-	mapping (address => uint) public tokensUsed;
+  mapping (address => uint) public tokensUsed;
 
   function setDAIContract(IERC20 _DAI_CONTRACT) public onlyOwner{
     DAI_CONTRACT = _DAI_CONTRACT;
@@ -35,7 +35,7 @@ contract CoffeeHandler is Ownable {
     emit LogSetCoffeePrice(msg.sender, _COFFEE_PRICE);
   }
 
-	function setStakeRate(uint _STAKE_RATE) public onlyOwner{
+  function setStakeRate(uint _STAKE_RATE) public onlyOwner{
     STAKE_RATE = _STAKE_RATE;
     emit LogSetStakeRate(msg.sender, _STAKE_RATE);
   }
@@ -49,16 +49,16 @@ contract CoffeeHandler is Ownable {
   }
 
   function removeStakedDAI(uint _amount) public {
-	  require(userToStake[msg.sender] >= _amount, "Amount bigger than current available to retrive");
-	  userToStake[msg.sender] = userToStake[msg.sender].sub(_amount);
-	  DAI_CONTRACT.transfer(msg.sender, _amount);
-	  emit LogRemoveStakedDAI(msg.sender, _amount, userToStake[msg.sender]);
+    require(userToStake[msg.sender] >= _amount, "Amount bigger than current available to retrive");
+    userToStake[msg.sender] = userToStake[msg.sender].sub(_amount);
+    DAI_CONTRACT.transfer(msg.sender, _amount);
+    emit LogRemoveStakedDAI(msg.sender, _amount, userToStake[msg.sender]);
   }
 
-	function mintTokens(uint _amount) public {
+  function mintTokens(uint _amount) public {
 		// uint expectedAvailable = COFFEE_PRICE.mul(STAKE_RATE.div(150));
 		// require(tokensUsed[msg.sender], "Not enough DAI Staked");
-	}
+  }
 
     //Allow to mint token
     //Allow to burn token
