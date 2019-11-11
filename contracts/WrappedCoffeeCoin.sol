@@ -11,9 +11,19 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
  */
 
 contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
+  event LogSetCoffeeHandler(address indexed _owner, address _contract);
+
   string private ipfsHash;
+  address public coffeeHandler;
 
   constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 0) public {}
+
+  function setCoffeeHandler(address _coffeeHandler) public onlyOwner{
+    addMinter(_coffeeHandler);
+    coffeeHandler = _coffeeHandler;
+    renounceMinter();
+    emit LogSetCoffeeHandler(msg.sender, _coffeeHandler);
+  }
 
   /**
     * @notice Called when a minter wants to create new tokens.
@@ -24,6 +34,7 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
     * - the caller must have the `MinterRole`.
     */
   function mint(address account, uint256 amount) public onlyMinter returns (bool) {
+    require(coffeeHandler != address(0), "Coffee Handler must be set");
     _mint(account, amount);
     return true;
   }

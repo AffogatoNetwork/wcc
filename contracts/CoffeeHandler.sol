@@ -1,21 +1,24 @@
 pragma solidity ^0.5.11;
+
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "./IERC20WCC.sol";
 
 contract CoffeeHandler is Ownable {
 
   event LogSetDAIContract(address indexed _owner, IERC20 _contract);
-  event LogSetWCCContract(address indexed _owner, IERC20 _contract);
+  event LogSetWCCContract(address indexed _owner, IERC20WCC _contract);
   event LogSetCoffeePrice(address indexed _owner, uint _coffeePrice);
   event LogSetStakeRate(address indexed _owner, uint _stakeRate);
   event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
   event LogRemoveStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
+  event LogMintTokens(address indexed _staker, uint _amount, uint _currentUsed);
 
   using SafeMath for uint256;
-  IERC20 public WCC_CONTRACT;
+  IERC20WCC public WCC_CONTRACT;
   IERC20 public DAI_CONTRACT;
-  uint public COFFEE_PRICE; /** @dev *100 for use of decimals  */
+  uint public COFFEE_PRICE; /** @dev *coffee price rounded */
   uint public STAKE_RATE; /** @dev percentage value  */
   mapping (address => uint) public userToStake;
   mapping (address => uint) public tokensUsed;
@@ -25,7 +28,7 @@ contract CoffeeHandler is Ownable {
     emit LogSetDAIContract(msg.sender, _DAI_CONTRACT);
   }
 
-  function setWCCContract(IERC20 _WCC_CONTRACT) public onlyOwner{
+  function setWCCContract(IERC20WCC _WCC_CONTRACT) public onlyOwner{
     WCC_CONTRACT = _WCC_CONTRACT;
     emit LogSetWCCContract(msg.sender, _WCC_CONTRACT);
   }
@@ -56,8 +59,16 @@ contract CoffeeHandler is Ownable {
   }
 
   function mintTokens(uint _amount) public {
-		// uint expectedAvailable = COFFEE_PRICE.mul(STAKE_RATE.div(150));
-		// require(tokensUsed[msg.sender], "Not enough DAI Staked");
+    uint expectedAvailable = requiredAmount(_amount);
+    require(userToStake[msg.sender] >= expectedAvailable, "Not enough DAI Staked");
+    userToStake[msg.sender] = userToStake[msg.sender].sub(expectedAvailable);
+    tokensUsed[msg.sender] = tokensUsed[msg.sender].add(_amount);
+    WCC_CONTRACT.mint(msg.sender, _amount);
+    emit LogMintTokens(msg.sender, _amount, tokensUsed[msg.sender]);
+  }
+
+  function requiredAmount(uint _amount) public view returns(uint){
+    return _amount.mul(COFFEE_PRICE.mul(STAKE_RATE)).div(100);
   }
 
     //Allow to mint token
