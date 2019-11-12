@@ -1,5 +1,4 @@
 import React from "react";
-import { ethers } from 'ethers';
 import getWeb3 from './utils/getWeb3';
 import TokenHandler from "./contracts/CoffeeHandler.json";
 import { ThemeProvider } from 'styled-components';
@@ -61,7 +60,7 @@ class App extends React.Component {
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       this.setState({
-        web3Provider: ethers.getDefaultProvider(),
+        web3: web3,
         account: accounts[0].toLowerCase(),
         contract,
         owner: owner.toLowerCase(),
@@ -85,7 +84,8 @@ class App extends React.Component {
     </Nav>
   )
 
-  ValidatorComponent = ({ account, web3Provider }) => <Validator account={account} web3Provider={web3Provider} />
+  ValidatorComponent = ({ account, web3, contract }) =>
+    <Validator account={account} web3={web3} contract={contract} />
 
   render() {
     return (
@@ -105,7 +105,8 @@ class App extends React.Component {
               </Card>
             </Box>
 
-            <Route exact path="/" component={() => this.ValidatorComponent(this.state)} />
+            <Route exact path="/validator"
+              component={() => this.ValidatorComponent(this.state)} />
           </div>
         </Router>
       </ThemeProvider>
