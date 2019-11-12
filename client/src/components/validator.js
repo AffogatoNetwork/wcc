@@ -1,8 +1,28 @@
-import { Card } from 'rimble-ui';
-import { React } from 'react';
+import { Card, Text } from 'rimble-ui';
+import React from 'react';
 
-class ValidatorPage extends React.Component {
-    constructor() {
-        
+class Validator extends React.Component {
+    constructor(props) {
+        super(props);
+        const { account } = props;
+        this.state = {
+            account,
+        };
+    }
+
+    componentDidMount = async () => {
+
+    }
+
+    render() {
+        return (
+            <div>
+                <Card>
+                    <Text child={`You have ${0} staked.`} />
+                </Card>
+            </div>
+        );
     }
 }
+
+export default Validator;

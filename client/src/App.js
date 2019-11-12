@@ -1,4 +1,5 @@
 import React from "react";
+import { ethers } from 'ethers';
 import getWeb3 from './utils/getWeb3';
 import TokenHandler from "./contracts/CoffeeHandler.json";
 import { ThemeProvider } from 'styled-components';
@@ -8,6 +9,8 @@ import { Nav } from 'react-bootstrap';
 
 import NetworkIndicator from '@rimble/network-indicator';
 import ConnectionBanner from '@rimble/connection-banner';
+
+import Validator from './components/validator';
 
 import Header from './components/header.js';
 
@@ -39,7 +42,7 @@ class App extends React.Component {
       // Get the contract instance.
       const networkId = await web3.eth.net.getId();
       const deployedNetwork = TokenHandler.networks[networkId];
-      console.log(`network id => ${networkId}`)
+
       this.setState({
         networkId: networkId
       });
@@ -55,11 +58,10 @@ class App extends React.Component {
       })
 
       const owner = await contract.methods.owner().call();
-      console.log(owner);
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       this.setState({
-        web3,
+        web3Provider: ethers.getDefaultProvider(),
         account: accounts[0].toLowerCase(),
         contract,
         owner: owner.toLowerCase(),
@@ -83,6 +85,8 @@ class App extends React.Component {
     </Nav>
   )
 
+  ValidatorComponent = ({ account, web3Provider }) => <Validator account={account} web3Provider={web3Provider} />
+
   render() {
     return (
       <ThemeProvider theme={theme}>
@@ -97,9 +101,11 @@ class App extends React.Component {
                 <ConnectionBanner
                   currentNetwork={this.state.networkId}
                   requiredNetwork={this.state.requiredNetwork}
-                  onWeb3Fallback={window.ethereum == null}/>
+                  onWeb3Fallback={window.ethereum == null} />
               </Card>
             </Box>
+
+            <Route exact path="/" component={() => this.ValidatorComponent(this.state)} />
           </div>
         </Router>
       </ThemeProvider>
