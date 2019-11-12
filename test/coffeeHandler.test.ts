@@ -1,13 +1,45 @@
-// import BigNumber from "bignumber.js";
-
-require("chai").should();
-require("chai").expect;
+import { ethers } from "@nomiclabs/buidler";
+import { deployContract, getWallets, solidity } from "ethereum-waffle";
+import chai from "chai";
+import CoffeeHandlerArtifact from "../build/CoffeeHandler.json";
+import { CoffeeHandler } from "../typechain/CoffeeHandler";
+import DaiTokenFactory from "../build/DaiToken.json";
+import { DaiToken } from "../typechain/DaiToken";
+import { utils, constants } from "ethers";
 
 //Zeppeling helpers
-//@ts-ignore
-const { BN, constants, balance, expectEvent, expectRevert } = require("@openzeppelin/test-helpers");
-var CoffeeHandler = artifacts.require("CoffeeHandler");
-var DaiToken = artifacts.require("DaiToken");
+chai.use(solidity);
+const { expect } = chai;
+require("chai").should();
+
+describe("CoffeeHandler", () => {
+	const provider = ethers.provider;
+	let accounts = getWallets(provider);
+	let coffeeHandler: CoffeeHandler;
+	let notOwnerCoffeeHandler: CoffeeHandler;
+	let daiToken: DaiToken;
+
+	describe("Coffee Handler Validations", () => {
+		let DAI_CONTRACT: string = constants.AddressZero;
+		const WCC_CONTRACT: string = "0x1655a4C1FA32139AC1dE4cA0015Fc22429933115";
+		const COFFEE_PRICE = 109;
+		const STAKE_DAI_AMOUNT = utils.parseEther("100");
+		const BIGGER_STAKE_DAI_AMOUNT = utils.parseEther("1000");
+		const STAKE_RATE = utils.parseEther("150");
+
+		before(async () => {
+			coffeeHandler = (await deployContract(accounts[0], CoffeeHandlerArtifact)) as CoffeeHandler;
+			daiToken = (await deployContract(accounts[0], DaiTokenFactory)) as DaiToken;
+			expect(coffeeHandler.address).to.properAddress;
+			expect(daiToken.address).to.properAddress;
+			notOwnerCoffeeHandler = coffeeHandler.connect(accounts[1]);
+		});
+
+		it("...should set the DAI contract", async () => {
+			DAI_CONTRACT = daiToken.address;
+			let currentDAIContract = await coffeeHandler.DAI_CONTRACT();
+			currentDAIContract.should.be.equal(constants.AddressZero);
+			await expect(notOwnerCoffeeHandler.setDAIContract(DAI_CONTRACT)).to.be.reverted;
 
 contract("CoffeeHandler", accounts => {
 	describe("Coffee Handler Validations", () => {
