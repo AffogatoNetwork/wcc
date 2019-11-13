@@ -14,6 +14,7 @@ contract CoffeeHandler is Ownable {
   event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
   event LogRemoveStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
   event LogMintTokens(address indexed _staker, uint _amount, uint _currentUsed);
+  event LogBurnTokens(address indexed _staker, uint _amount, uint _currentUsed);
 
   using SafeMath for uint256;
   IERC20WCC public WCC_CONTRACT;
@@ -67,10 +68,17 @@ contract CoffeeHandler is Ownable {
     emit LogMintTokens(msg.sender, _amount, tokensUsed[msg.sender]);
   }
 
+  function burnTokens(uint _amount) public {
+    uint expectedAvailable = requiredAmount(_amount);
+    require(tokensUsed[msg.sender] >= _amount, "Burn amount higher than stake minted");
+    userToStake[msg.sender] = userToStake[msg.sender].add(expectedAvailable);
+    tokensUsed[msg.sender] = tokensUsed[msg.sender].sub(_amount);
+    WCC_CONTRACT.burn(msg.sender, _amount);
+    emit LogBurnTokens(msg.sender, _amount, tokensUsed[msg.sender]);
+  }
+
   function requiredAmount(uint _amount) public view returns(uint){
     return _amount.mul(COFFEE_PRICE.mul(STAKE_RATE)).div(100);
   }
-
-    //Allow to mint token
     //Allow to burn token
 }
