@@ -22,6 +22,7 @@ describe("CoffeeHandler", () => {
   let daiToken: DaiToken;
   let daiTokenInstance: DaiToken[] = [];
   let wrappedCoffeeCoin: WrappedCoffeeCoin;
+  let wccInstance: WrappedCoffeeCoin[] = [];
 
   describe("Coffee Handler Validations", () => {
     let DAI_CONTRACT: string = constants.AddressZero;
@@ -29,6 +30,7 @@ describe("CoffeeHandler", () => {
     const COFFEE_PRICE = "2";
     const STAKE_DAI_AMOUNT = utils.parseEther("100");
     const MINT_AMOUNT = utils.parseEther("10");
+    const LOW_MINT_AMOUNT = utils.parseEther("1");
     const BIGGER_STAKE_DAI_AMOUNT = utils.parseEther("1000");
     const STAKE_RATE = 150;
 
@@ -46,6 +48,7 @@ describe("CoffeeHandler", () => {
       expect(wrappedCoffeeCoin.address).to.properAddress;
       wrappedCoffeeCoin.setCoffeeHandler(coffeeHandler.address);
       WCC_CONTRACT = wrappedCoffeeCoin.address;
+      wccInstance[1] = wrappedCoffeeCoin.connect(accounts[1]);
     });
 
     it("...should set the DAI contract", async () => {
@@ -175,8 +178,27 @@ describe("CoffeeHandler", () => {
       expect(usedStake).to.equal(MINT_AMOUNT, "Stake counter should increase");
       wccBalance = await wrappedCoffeeCoin.balanceOf(accounts[1].address);
       wccBalance.should.equal(MINT_AMOUNT, "WCC Balance should increase");
-      //update mappings
-      //should mint tokens
+      let totalSupply = await wrappedCoffeeCoin.totalSupply();
+      totalSupply.should.be.eq(MINT_AMOUNT);
+    });
+
+    it("...should allow validators to burn WCC", async () => {
+      let wccBalance = await wrappedCoffeeCoin.balanceOf(accounts[1].address);
+      wccBalance.should.equal(MINT_AMOUNT, "WCC Balance should be Minted amount");
+      await expect(coffeeHandlerInstance[1].burnTokens(BIGGER_STAKE_DAI_AMOUNT)).to.be.revertedWith(
+        "Burn amount higher than stake minted"
+      );
+      await expect(coffeeHandlerInstance[1].burnTokens(MINT_AMOUNT))
+        .to.emit(coffeeHandler, "LogBurnTokens")
+        .withArgs(accounts[1].address, MINT_AMOUNT, 0);
+      let currentStake = await coffeeHandler.userToStake(accounts[1].address);
+      expect(currentStake).to.equal(STAKE_DAI_AMOUNT, "Stake counter should increase");
+      let usedStake = await coffeeHandler.tokensUsed(accounts[1].address);
+      expect(usedStake).to.equal(0, "Stake counter should decrease");
+      wccBalance = await wrappedCoffeeCoin.balanceOf(accounts[1].address);
+      wccBalance.should.equal(0, "WCC Balance should decrease");
+      let totalSupply = await wrappedCoffeeCoin.totalSupply();
+      totalSupply.should.be.eq(0);
     });
   });
 });
