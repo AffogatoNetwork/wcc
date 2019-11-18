@@ -9,7 +9,6 @@ import WrappedCoffeeCoinArtifact from "../build/WrappedCoffeeCoin.json";
 import { WrappedCoffeeCoin } from "../typechain/WrappedCoffeeCoin";
 import { utils, constants } from "ethers";
 
-//Zeppeling helpers
 chai.use(solidity);
 const { expect } = chai;
 require("chai").should();
