@@ -20,6 +20,7 @@
     "@nomiclabs/buidler": "^1.0.1",
     "@nomiclabs/buidler-ethers": "^1.0.1",
     "@types/chai": "^4.2.4",
+    "@types/mocha": "^5.2.7",
     "chai": "^4.2.0",
     "dotenv": "^8.1.0",
     "eslint": "6.1.0",
