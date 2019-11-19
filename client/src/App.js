@@ -1,6 +1,6 @@
 import React from "react";
+import { ethers } from 'ethers';
 import getWeb3 from './utils/getWeb3';
-import TokenHandler from "./contracts/CoffeeHandler.json";
 import { ThemeProvider } from 'styled-components';
 import { theme, Box, Card } from 'rimble-ui';
 import { NavLink } from 'react-router-dom';
@@ -12,6 +12,8 @@ import ConnectionBanner from '@rimble/connection-banner';
 import Validator from './components/validator';
 
 import Header from './components/header.js';
+// Contract's ABI
+import CoffeeHandler from "./contracts/CoffeeHandler.json";
 
 import {
   BrowserRouter as Router,
@@ -21,6 +23,7 @@ import {
 } from "react-router-dom";
 
 import "./App.css";
+import { sign } from "crypto";
 
 class App extends React.Component {
   constructor(props) {
@@ -33,37 +36,27 @@ class App extends React.Component {
   componentDidMount = async () => {
     try {
       // Get network provider and web3 instance.
-      const web3 = await getWeb3();
+      const web3Provider = await getWeb3();
 
       // Use web3 to get the user's accounts.
-      const accounts = await web3.eth.getAccounts();
-
+      const signer = await web3Provider.getSigner();
       // Get the contract instance.
-      const networkId = await web3.eth.net.getId();
-      const deployedNetwork = TokenHandler.networks[networkId];
+      const network = await web3Provider.getNetwork();
 
-      this.setState({
-        networkId: networkId
-      });
+      const contractAddress = "0x827c798F2c236388667d7B5253b1d5d31fE4cB12";
+      let contract = new ethers.Contract(
+        contractAddress,
+        CoffeeHandler.abi,
+        web3Provider
+      ).connect(signer);
 
-      const contract = new web3.eth.Contract(
-        TokenHandler.abi,
-        deployedNetwork && deployedNetwork.address,
-      );
-
-      const context = this;
-      window.ethereum.on('accountsChanged', function (accounts) {
-        context.setState({ account: accounts[0].toLowerCase() });
-      })
-
-      const owner = await contract.methods.owner().call();
       // Set web3, accounts, and contract to the state, and then proceed with an
       // example of interacting with the contract's methods.
       this.setState({
-        web3: web3,
-        account: accounts[0].toLowerCase(),
+        networkId: network.chainId,
+        web3Provider,
+        signer,
         contract,
-        owner: owner.toLowerCase(),
       });
     } catch (error) {
       // Catch any errors for any of the above operations.
@@ -84,10 +77,14 @@ class App extends React.Component {
     </Nav>
   )
 
-  ValidatorComponent = ({ account, web3, contract }) =>
-    <Validator account={account} web3={web3} contract={contract} />
-
+  ValidatorComponent = ({ signer, web3Provider, contract }) =>
+    <Validator signer={signer} web3={web3Provider} contract={contract} />
   render() {
+
+    if (!this.state.contract) {
+      return (<div>Loading...</div>);
+    }
+
     return (
       <ThemeProvider theme={theme}>
         <Router>
