@@ -38,7 +38,7 @@ class App extends React.Component {
       // Get the contract instance.
       const network = await web3Provider.getNetwork();
 
-      const contractAddress = "0x827c798F2c236388667d7B5253b1d5d31fE4cB12";
+      const contractAddress = "0xF03CA73569CaDC0484684747C9F5826f3Fd0C61d";
       let contract = new ethers.Contract(contractAddress, CoffeeHandler.abi, web3Provider).connect(
         signer
       );
