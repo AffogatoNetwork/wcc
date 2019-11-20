@@ -4,6 +4,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/access/roles/MinterRole.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "./IERC20WCC.sol";
 
 /**
  * @notice An ERC that will represent deposited coffee to a validator.

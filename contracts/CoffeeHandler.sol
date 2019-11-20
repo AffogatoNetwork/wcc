@@ -13,8 +13,9 @@ contract CoffeeHandler is Ownable {
   event LogSetStakeRate(address indexed _owner, uint _stakeRate);
   event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
   event LogRemoveStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
-  event LogMintTokens(address indexed _staker, uint _amount, uint _currentUsed);
-  event LogBurnTokens(address indexed _staker, uint _amount, uint _currentUsed);
+  event LogMintTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
+  event LogBurnTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
+  event LogApproveMint(address indexed _owner, address _staker, uint amount);
 
   using SafeMath for uint256;
   IERC20WCC public WCC_CONTRACT;
@@ -23,6 +24,8 @@ contract CoffeeHandler is Ownable {
   uint public STAKE_RATE; /** @dev percentage value  */
   mapping (address => uint) public userToStake;
   mapping (address => uint) public tokensUsed;
+  mapping (address => mapping (address => uint)) public tokensMintApproved;
+  mapping (address => address) public userToValidator;
 
   function setDAIContract(IERC20 _DAI_CONTRACT) public onlyOwner{
     DAI_CONTRACT = _DAI_CONTRACT;
@@ -59,26 +62,36 @@ contract CoffeeHandler is Ownable {
     emit LogRemoveStakedDAI(msg.sender, _amount, userToStake[msg.sender]);
   }
 
-  function mintTokens(uint _amount) public {
+  function mintTokens(address _owner, uint _amount) public {
+    require(tokensMintApproved[_owner][msg.sender] >= _amount, "Mint value bigger than approved by user");
     uint expectedAvailable = requiredAmount(_amount);
     require(userToStake[msg.sender] >= expectedAvailable, "Not enough DAI Staked");
     userToStake[msg.sender] = userToStake[msg.sender].sub(expectedAvailable);
     tokensUsed[msg.sender] = tokensUsed[msg.sender].add(_amount);
-    WCC_CONTRACT.mint(msg.sender, _amount);
-    emit LogMintTokens(msg.sender, _amount, tokensUsed[msg.sender]);
+    tokensMintApproved[_owner][msg.sender] = 0;
+    userToValidator[_owner] = msg.sender;
+    WCC_CONTRACT.mint(_owner, _amount);
+    emit LogMintTokens(msg.sender, _owner, _amount, tokensUsed[msg.sender]);
   }
 
   function burnTokens(uint _amount) public {
     uint expectedAvailable = requiredAmount(_amount);
-    require(tokensUsed[msg.sender] >= _amount, "Burn amount higher than stake minted");
-    userToStake[msg.sender] = userToStake[msg.sender].add(expectedAvailable);
-    tokensUsed[msg.sender] = tokensUsed[msg.sender].sub(_amount);
+    address validator = userToValidator[msg.sender];
+    require(tokensUsed[validator] >= _amount, "Burn amount higher than stake minted");
+    userToStake[validator] = userToStake[validator].add(expectedAvailable);
+    tokensUsed[validator] = tokensUsed[validator].sub(_amount);
     WCC_CONTRACT.burn(msg.sender, _amount);
-    emit LogBurnTokens(msg.sender, _amount, tokensUsed[msg.sender]);
+    emit LogBurnTokens(validator, msg.sender, _amount, tokensUsed[validator]);
   }
 
   function requiredAmount(uint _amount) public view returns(uint){
     return _amount.mul(COFFEE_PRICE.mul(STAKE_RATE)).div(100);
   }
-    //Allow to burn token
+
+  function approveMint(address _validator, uint _amount) public{
+    tokensMintApproved[msg.sender][_validator] = _amount;
+    emit LogApproveMint(msg.sender, _validator, _amount);
+  }
+  //Approve to mint
+  //expire tokens
 }
