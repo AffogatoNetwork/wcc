@@ -16,6 +16,7 @@ contract CoffeeHandler is Ownable {
   event LogMintTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
   event LogBurnTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
   event LogApproveMint(address indexed _owner, address _staker, uint amount);
+  event LogRedeemTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
 
   using SafeMath for uint256;
   IERC20WCC public WCC_CONTRACT;
@@ -26,6 +27,12 @@ contract CoffeeHandler is Ownable {
   mapping (address => uint) public tokensUsed;
   mapping (address => mapping (address => uint)) public tokensMintApproved;
   mapping (address => address) public userToValidator;
+  uint256 public openingTime;
+
+  constructor() public {
+    /* solium-disable-next-line */
+    openingTime = now;
+  }
 
   function setDAIContract(IERC20 _DAI_CONTRACT) public onlyOwner{
     DAI_CONTRACT = _DAI_CONTRACT;
@@ -84,14 +91,27 @@ contract CoffeeHandler is Ownable {
     emit LogBurnTokens(validator, msg.sender, _amount, tokensUsed[validator]);
   }
 
-  function requiredAmount(uint _amount) public view returns(uint){
+  function requiredAmount(uint _amount) public view returns(uint) {
     return _amount.mul(COFFEE_PRICE.mul(STAKE_RATE)).div(100);
   }
 
-  function approveMint(address _validator, uint _amount) public{
+  function approveMint(address _validator, uint _amount) public {
     tokensMintApproved[msg.sender][_validator] = _amount;
     emit LogApproveMint(msg.sender, _validator, _amount);
   }
-  //Approve to mint
+
+  function redeemTokens(uint _amount) public {
+    /* solium-disable-next-line */
+    require(now >= openingTime + 90 days, "Redeem is only available after 3 months of deployment");
+    uint expectedAvailable = requiredAmount(_amount);
+    address validator = userToValidator[msg.sender];
+    require(tokensUsed[validator] >= _amount, "Redeem amount is higher than redeemable amount");
+    uint tokenToDai = COFFEE_PRICE.mul(_amount);
+    userToStake[validator] = userToStake[validator].add(expectedAvailable).sub(tokenToDai);
+    tokensUsed[validator] = tokensUsed[validator].sub(_amount);
+    WCC_CONTRACT.burn(msg.sender, _amount);
+    DAI_CONTRACT.transfer(msg.sender, tokenToDai);
+    emit LogRedeemTokens(validator, msg.sender, _amount, tokensUsed[validator]);
+  }
   //expire tokens
 }
