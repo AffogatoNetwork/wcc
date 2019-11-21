@@ -18,6 +18,7 @@ contract CoffeeHandler is Ownable {
   event LogBurnTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
   event LogApproveMint(address indexed _owner, address _staker, uint amount);
   event LogRedeemTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
+  event LogLiquidateStakedDAI(address indexed _owner, uint _amount);
 
   using SafeMath for uint256;
   IERC20WCC public WCC_CONTRACT;
@@ -29,6 +30,19 @@ contract CoffeeHandler is Ownable {
   mapping (address => mapping (address => uint)) public tokensMintApproved;
   mapping (address => address) public userToValidator;
   uint256 public openingTime;
+
+
+  modifier onlyPaused(){
+    /* solium-disable-next-line */
+    require(now >= openingTime + 90 days, "only available after 3 months of deployment");
+    _;
+  }
+
+  modifier onlyNotPaused(){
+    /* solium-disable-next-line */
+    require(now <= openingTime + 90 days, "only available during the 3 months of deployment");
+    _;
+  }
 
   constructor() public {
     /* solium-disable-next-line */
@@ -55,7 +69,7 @@ contract CoffeeHandler is Ownable {
     emit LogSetStakeRate(msg.sender, _STAKE_RATE);
   }
 
-  function stakeDAI(uint _amount) public {
+  function stakeDAI(uint _amount) public onlyNotPaused {
     require(DAI_CONTRACT.balanceOf(msg.sender) >= _amount, "Not enough balance");
     require(DAI_CONTRACT.allowance(msg.sender, address(this)) >= _amount, "Contract allowance is to low or not approved");
     DAI_CONTRACT.transferFrom(msg.sender, address(this), _amount);
@@ -111,9 +125,7 @@ contract CoffeeHandler is Ownable {
     emit LogApproveMint(msg.sender, _validator, _amount);
   }
 
-  function redeemTokens(uint _amount) public {
-    /* solium-disable-next-line */
-    require(now >= openingTime + 90 days, "Redeem is only available after 3 months of deployment");
+  function redeemTokens(uint _amount) public onlyPaused {
     uint expectedAvailable = requiredAmount(_amount);
     address validator = userToValidator[msg.sender];
     require(tokensUsed[validator] >= _amount, "Redeem amount is higher than redeemable amount");
@@ -124,5 +136,12 @@ contract CoffeeHandler is Ownable {
     DAI_CONTRACT.transfer(msg.sender, tokenToDai);
     emit LogRedeemTokens(validator, msg.sender, _amount, tokensUsed[validator]);
   }
-  //expire tokens
+
+  function liquidateStakedDAI() public onlyOwner {
+    /* solium-disable-next-line */
+    require(now >= openingTime + 90 days, "only available after 6 months of deployment");
+    uint amount = DAI_CONTRACT.balanceOf(address(this));
+    DAI_CONTRACT.transfer(owner(), amount);
+    emit LogLiquidateStakedDAI(msg.sender, amount);
+  }
 }

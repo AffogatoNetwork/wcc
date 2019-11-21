@@ -34,25 +34,27 @@ describe("CoffeeHandler", () => {
     const BIGGER_STAKE_DAI_AMOUNT = utils.parseEther("1000");
     const STAKE_RATE = 150;
     const THREE_MONTHS = 7776000;
+    const SIX_MONTHS = 15552000;
 
     before(async () => {
       coffeeHandler = (await deployContract(accounts[0], CoffeeHandlerArtifact)) as CoffeeHandler;
       daiToken = (await deployContract(accounts[0], DaiTokenFactory)) as DaiToken;
-      expect(coffeeHandler.address).to.properAddress;
-      expect(daiToken.address).to.properAddress;
-      coffeeHandlerInstance[1] = coffeeHandler.connect(accounts[1]);
-      coffeeHandlerInstance[2] = coffeeHandler.connect(accounts[2]);
-      daiTokenInstance[1] = daiToken.connect(accounts[1]);
-      daiTokenInstance[2] = daiToken.connect(accounts[2]);
       wrappedCoffeeCoin = (await deployContract(
         accounts[0],
         WrappedCoffeeCoinArtifact
       )) as WrappedCoffeeCoin;
+      expect(coffeeHandler.address).to.properAddress;
+      expect(daiToken.address).to.properAddress;
       expect(wrappedCoffeeCoin.address).to.properAddress;
-      wrappedCoffeeCoin.setCoffeeHandler(coffeeHandler.address);
-      WCC_CONTRACT = wrappedCoffeeCoin.address;
+      coffeeHandlerInstance[1] = coffeeHandler.connect(accounts[1]);
+      coffeeHandlerInstance[2] = coffeeHandler.connect(accounts[2]);
+      daiTokenInstance[1] = daiToken.connect(accounts[1]);
+      daiTokenInstance[2] = daiToken.connect(accounts[2]);
+      daiTokenInstance[3] = daiToken.connect(accounts[3]);
       wccInstance[1] = wrappedCoffeeCoin.connect(accounts[1]);
       wccInstance[2] = wrappedCoffeeCoin.connect(accounts[2]);
+      wrappedCoffeeCoin.setCoffeeHandler(coffeeHandler.address);
+      WCC_CONTRACT = wrappedCoffeeCoin.address;
     });
 
     it("...should set the DAI contract", async () => {
@@ -243,7 +245,7 @@ describe("CoffeeHandler", () => {
       let daiBalance = await daiToken.balanceOf(accounts[2].address);
       expect(daiBalance).to.be.eq(0, "Initial balance should be 0");
       await expect(coffeeHandlerInstance[1].redeemTokens(MINT_AMOUNT)).to.be.revertedWith(
-        "Redeem is only available after 3 months of deployment"
+        "only available after 3 months of deployment"
       );
       await ethers.provider.send("evm_increaseTime", [THREE_MONTHS]);
       await expect(coffeeHandlerInstance[1].redeemTokens(MINT_AMOUNT)).to.be.revertedWith(
@@ -287,6 +289,45 @@ describe("CoffeeHandler", () => {
       expect(daiBalance).to.equal(
         BIGGER_STAKE_DAI_AMOUNT.sub(MINT_AMOUNT),
         "Validator's DAI Balance should increase"
+      );
+    });
+
+    it("...should pause staking after 3 months", async () => {
+      await daiTokenInstance[1].approve(coffeeHandler.address, STAKE_DAI_AMOUNT);
+      await expect(coffeeHandlerInstance[1].stakeDAI(STAKE_DAI_AMOUNT)).to.be.revertedWith(
+        "only available during the 3 months of deployment"
+      );
+    });
+
+    it("...should allow to retrieve all locked stake after 6 months", async () => {
+      let newInstance = (await deployContract(accounts[0], CoffeeHandlerArtifact)) as CoffeeHandler;
+      await newInstance.setCoffeePrice(COFFEE_PRICE);
+      await newInstance.setDAIContract(DAI_CONTRACT);
+      await newInstance.setWCCContract(WCC_CONTRACT);
+      newInstance = newInstance.connect(accounts[3]);
+      await daiTokenInstance[3].faucet(BIGGER_STAKE_DAI_AMOUNT);
+      await daiTokenInstance[3].approve(newInstance.address, BIGGER_STAKE_DAI_AMOUNT);
+      let daiBalance = await daiToken.balanceOf(newInstance.address);
+      expect(daiBalance).to.equal(0, "DAI Balance should be 0 ");
+      //TODO: MINT TOKENS Also
+      await newInstance.stakeDAI(BIGGER_STAKE_DAI_AMOUNT);
+      await expect(newInstance.liquidateStakedDAI()).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
+      newInstance = newInstance.connect(accounts[0]);
+      await expect(newInstance.liquidateStakedDAI()).to.be.revertedWith(
+        "only available after 6 months of deployment"
+      );
+      await ethers.provider.send("evm_increaseTime", [SIX_MONTHS]);
+      await expect(newInstance.liquidateStakedDAI())
+        .to.emit(newInstance, "LogLiquidateStakedDAI")
+        .withArgs(accounts[0].address, BIGGER_STAKE_DAI_AMOUNT);
+      daiBalance = await daiToken.balanceOf(newInstance.address);
+      expect(daiBalance).to.equal(0, "DAI Balance should be 0 ");
+      daiBalance = await daiToken.balanceOf(accounts[0].address);
+      expect(daiBalance).to.equal(
+        BIGGER_STAKE_DAI_AMOUNT,
+        "DAI Balance should be all the staked DAI "
       );
     });
   });
