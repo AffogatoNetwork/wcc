@@ -274,5 +274,20 @@ describe("CoffeeHandler", () => {
       let totalSupply = await wrappedCoffeeCoin.totalSupply();
       totalSupply.should.be.equal(0, "Total supply should decrease");
     });
+
+    it("...should allow validators to remove all staked DAI", async () => {
+      await expect(coffeeHandlerInstance[1].removeAllStakedDAI())
+        .to.emit(coffeeHandler, "LogRemoveAllStakedDAI")
+        .withArgs(accounts[1].address, STAKE_DAI_AMOUNT.sub(MINT_AMOUNT), 0);
+      let daiBalance = await daiToken.balanceOf(coffeeHandler.address);
+      expect(daiBalance).to.equal(0, "DAI Balance should decrease to retrieved stake");
+      const currentStake = await coffeeHandler.userToStake(accounts[1].address);
+      expect(currentStake).to.equal(0, "Stake counter should increase");
+      daiBalance = await daiToken.balanceOf(accounts[1].address);
+      expect(daiBalance).to.equal(
+        BIGGER_STAKE_DAI_AMOUNT.sub(MINT_AMOUNT),
+        "Validator's DAI Balance should increase"
+      );
+    });
   });
 });

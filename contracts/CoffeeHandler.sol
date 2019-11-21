@@ -13,6 +13,7 @@ contract CoffeeHandler is Ownable {
   event LogSetStakeRate(address indexed _owner, uint _stakeRate);
   event LogStakeDAI(address indexed _staker, uint _amount, uint _currentStake);
   event LogRemoveStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
+  event LogRemoveAllStakedDAI(address indexed _staker, uint _amount, uint _currentStake);
   event LogMintTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
   event LogBurnTokens(address indexed _staker, address owner, uint _amount, uint _currentUsed);
   event LogApproveMint(address indexed _owner, address _staker, uint amount);
@@ -62,11 +63,21 @@ contract CoffeeHandler is Ownable {
     emit LogStakeDAI(msg.sender, _amount, userToStake[msg.sender]);
   }
 
-  function removeStakedDAI(uint _amount) public {
+  function _removeStakedDAI(uint _amount) private {
     require(userToStake[msg.sender] >= _amount, "Amount bigger than current available to retrive");
     userToStake[msg.sender] = userToStake[msg.sender].sub(_amount);
     DAI_CONTRACT.transfer(msg.sender, _amount);
+  }
+
+  function removeStakedDAI(uint _amount) public {
+    _removeStakedDAI(_amount);
     emit LogRemoveStakedDAI(msg.sender, _amount, userToStake[msg.sender]);
+  }
+
+  function removeAllStakedDAI() public {
+    uint amount = userToStake[msg.sender];
+    _removeStakedDAI(amount);
+    emit LogRemoveAllStakedDAI(msg.sender, amount, userToStake[msg.sender]);
   }
 
   function mintTokens(address _owner, uint _amount) public {
