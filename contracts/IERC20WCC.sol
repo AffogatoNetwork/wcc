@@ -75,4 +75,6 @@ interface IERC20WCC {
     event Approval(address indexed owner, address indexed spender, uint256 value);
 
     function mint(address owner, uint256 amount) external returns (bool);
+
+    function burn(address owner, uint256 amount) external returns (bool);
 }

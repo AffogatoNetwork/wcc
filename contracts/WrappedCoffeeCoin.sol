@@ -4,6 +4,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/access/roles/MinterRole.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "./IERC20WCC.sol";
 
 /**
  * @notice An ERC that will represent deposited coffee to a validator.
@@ -32,10 +33,17 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
     * Requirements:
     *
     * - the caller must have the `MinterRole`.
+    *  TODO:  Farmer must approve mint before minting
     */
   function mint(address account, uint256 amount) public onlyMinter returns (bool) {
     require(coffeeHandler != address(0), "Coffee Handler must be set");
     _mint(account, amount);
+    return true;
+  }
+
+  function burn(address account, uint256 amount) public onlyMinter returns (bool) {
+    require(coffeeHandler != address(0), "Coffee Handler must be set");
+    _burn(account, amount);
     return true;
   }
 
