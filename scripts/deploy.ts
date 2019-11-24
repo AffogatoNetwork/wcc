@@ -21,11 +21,11 @@ async function main() {
     });
   });
 
-  file = "build/WrappedCoffeeCoin.json";
+  let wccfile = "build/WrappedCoffeeCoin.json";
   newData = { address: wrappedCoffeeCoinContract.address };
-  jsonfile.readFile(file, (err: any, oldData: any) => {
+  jsonfile.readFile(wccfile, (err: any, oldData: any) => {
     if (err) console.error(err);
-    jsonfile.writeFile(file, Object.assign(oldData, newData), (err: any) => {
+    jsonfile.writeFile(wccfile, Object.assign(oldData, newData), (err: any) => {
       if (err) console.error(err);
       else console.log("Contract JSON updated");
     });
