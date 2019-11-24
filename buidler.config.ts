@@ -1,10 +1,10 @@
+require("dotenv").config();
 import { BuidlerConfig, usePlugin } from "@nomiclabs/buidler/config";
 import waffleDefaultAccounts from "ethereum-waffle/dist/config/defaultAccounts";
 
 usePlugin("@nomiclabs/buidler-ethers");
 
-const INFURA_API_KEY = "";
-const RINKEBY_PRIVATE_KEY = "";
+const mnemonic = process.env.MNENOMIC;
 
 const config: BuidlerConfig = {
   solc: {
@@ -13,6 +13,7 @@ const config: BuidlerConfig = {
   paths: {
     artifacts: "./build"
   },
+  //@ts-ignore
   networks: {
     buidlerevm: {
       accounts: waffleDefaultAccounts.map(acc => ({
@@ -21,8 +22,8 @@ const config: BuidlerConfig = {
       }))
     },
     rinkeby: {
-      url: `https://rinkeby.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [RINKEBY_PRIVATE_KEY]
+      url: process.env.RINKEBY_API_URL,
+      accounts: { mnemonic: mnemonic }
     }
   }
 };

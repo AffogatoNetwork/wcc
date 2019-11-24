@@ -10,7 +10,8 @@
     "compile": "npx buidler compile",
     "typechain": "npx buidler compile && typechain --outDir typechain --target ethers 'build/*.json'",
     "test": "npx buidler test",
-    "ganache": "npx buidler run --network localhost scripts/deploy.ts"
+    "ganache": "npx buidler run --network localhost scripts/deploy.ts",
+    "rinkeby": "npx buidler run --network rinkeby scripts/deploy.ts"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^2.4.0",

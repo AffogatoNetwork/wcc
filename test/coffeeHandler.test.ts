@@ -309,7 +309,6 @@ describe("CoffeeHandler", () => {
       await daiTokenInstance[3].approve(newInstance.address, BIGGER_STAKE_DAI_AMOUNT);
       let daiBalance = await daiToken.balanceOf(newInstance.address);
       expect(daiBalance).to.equal(0, "DAI Balance should be 0 ");
-      //TODO: MINT TOKENS Also
       await newInstance.stakeDAI(BIGGER_STAKE_DAI_AMOUNT);
       await expect(newInstance.liquidateStakedDAI()).to.be.revertedWith(
         "Ownable: caller is not the owner"
