@@ -8,10 +8,13 @@
   "scripts": {
     "build": "npm run compile && npm run typechain",
     "compile": "npx buidler compile",
-    "typechain": "npx buidler compile && typechain --outDir typechain --target ethers 'build/*.json'",
+    "typechain": "npx buidler compile && typechain --outDir typechain --target ethers 'artifacts/*.json'",
     "test": "npx buidler test",
     "ganache": "npx buidler run --network localhost scripts/deploy.ts",
-    "rinkeby": "npx buidler run --network rinkeby scripts/deploy.ts"
+    "rinkeby": "npx buidler run --network rinkeby scripts/deploy.ts",
+    "flatten": "npx truffle-flattener ./contracts/CoffeeHandler.sol > ./artifacts/CoffeeHandler.sol",
+    "verifych": "npx buidler verify-contract --contract-name CoffeeHandler --address 0x52fdc9C1505d331051623aAd8aC0ce0A2C89F2cb",
+    "verifywcc": "npx buidler verify-contract --contract-name WrappedCoffeeCoin --address 0xA86571FF4e305Ad04449e03E7Bc159d709f05ec8"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^2.4.0",
@@ -20,6 +23,7 @@
   "devDependencies": {
     "@nomiclabs/buidler": "^1.0.1",
     "@nomiclabs/buidler-ethers": "^1.0.1",
+    "@nomiclabs/buidler-etherscan": "^1.0.1",
     "@types/chai": "^4.2.4",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.11",

@@ -1,5 +1,6 @@
 build/
 bin/
+artifacts
 .secret
 package-lock.json
 .env
