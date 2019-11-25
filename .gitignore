@@ -1,4 +1,5 @@
 build/
+bin/
 .secret
 package-lock.json
 .env
