@@ -1526,11 +1526,6 @@ buffer@^5.0.5, buffer@^5.2.1:
     base64-js "^1.0.2"
     ieee754 "^1.1.4"
 
-buidler-typechain@^0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/buidler-typechain/-/buidler-typechain-0.0.5.tgz#bb0c0b07ca0ab43ed5522b8ae8f42f73af1b45af"
-  integrity sha512-ZSkO5LEcKiS0gHxJF8Q+zJaX8hcv0nrkXls5L+uTFeYmC6wg69/V/uePNE1FjQLrRJo1QyTwp76ZUnAna4RpvA==
-
 bytes@3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.1.0.tgz#f6cf7933a360e0588fa9fde85651cdc7f805d1f6"
@@ -8089,20 +8084,6 @@ typechain-target-ethers@^1.0.1:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/typechain-target-ethers/-/typechain-target-ethers-1.0.3.tgz#2a55eead6190c87082a3237c55a315695ef0cd43"
   integrity sha512-01bzf/eJW9QATZcGAXhaVc1WuEup7CIW22xEu22IaNuUlRCWW0yhNGA3H0UInUBVzT7yfsSapyLB8gYTqQnDjg==
-  dependencies:
-    lodash "^4.17.15"
-
-typechain-target-truffle@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/typechain-target-truffle/-/typechain-target-truffle-1.0.2.tgz#52ecbd8b7a854960567ad223660d60fcb42eaa17"
-  integrity sha512-XF3Iq2IzR+Pqvx6fcKIKGXNEk3lEcY24vYv9VqoVPfPB6vUM09PRLJCeLm1/ag6Pr2PICKUA0f4Es+YTR3ESKA==
-  dependencies:
-    lodash "^4.17.15"
-
-typechain-target-web3-v1@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/typechain-target-web3-v1/-/typechain-target-web3-v1-1.0.2.tgz#bea12649769689d83540dfa49709069eaf57515b"
-  integrity sha512-32vOvKocSJ6I1KLOH0lS9h31SIplsnCDH98aUL6Bv8beEybnqvVJZQp/Lu8nWQ4DDNv9CeXJ9uSM7GJlQcCgmQ==
   dependencies:
     lodash "^4.17.15"
 
