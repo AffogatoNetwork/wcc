@@ -1,11 +1,11 @@
 import { ethers } from "@nomiclabs/buidler";
 import { deployContract, getWallets, solidity } from "ethereum-waffle";
 import chai from "chai";
-import CoffeeHandlerArtifact from "../build/CoffeeHandler.json";
+import CoffeeHandlerArtifact from "../artifacts/CoffeeHandler.json";
 import { CoffeeHandler } from "../typechain/CoffeeHandler";
-import DaiTokenFactory from "../build/DaiToken.json";
+import DaiTokenFactory from "../artifacts/DaiToken.json";
 import { DaiToken } from "../typechain/DaiToken";
-import WrappedCoffeeCoinArtifact from "../build/WrappedCoffeeCoin.json";
+import WrappedCoffeeCoinArtifact from "../artifacts/WrappedCoffeeCoin.json";
 import { WrappedCoffeeCoin } from "../typechain/WrappedCoffeeCoin";
 import { utils, constants } from "ethers";
 

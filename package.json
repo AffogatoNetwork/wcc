@@ -12,6 +12,7 @@
     "test": "npx buidler test",
     "ganache": "npx buidler run --network localhost scripts/deploy.ts",
     "rinkeby": "npx buidler run --network rinkeby scripts/deploy.ts",
+    "updateCoffee": "npx buidler run --network rinkeby scripts/updateCoffee.ts",
     "flatten": "npx truffle-flattener ./contracts/CoffeeHandler.sol > ./artifacts/CoffeeHandler.sol",
     "verifych": "npx buidler verify-contract --contract-name CoffeeHandler --address 0x52fdc9C1505d331051623aAd8aC0ce0A2C89F2cb",
     "verifywcc": "npx buidler verify-contract --contract-name WrappedCoffeeCoin --address 0xA86571FF4e305Ad04449e03E7Bc159d709f05ec8"
@@ -27,6 +28,7 @@
     "@types/chai": "^4.2.4",
     "@types/mocha": "^5.2.7",
     "@types/node": "^12.12.11",
+    "axios": "^0.19.0",
     "chai": "^4.2.0",
     "dotenv": "^8.1.0",
     "eslint": "6.1.0",
