@@ -17,7 +17,7 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
   string private ipfsHash;
   address public coffeeHandler;
 
-  constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 0) public {}
+  constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 18) public {}
 
   function setCoffeeHandler(address _coffeeHandler) public onlyOwner{
     addMinter(_coffeeHandler);
