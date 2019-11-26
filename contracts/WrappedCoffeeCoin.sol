@@ -57,7 +57,7 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
 
   /**
     * @notice Updates the IPFS pointer for the information about this coffee.
-    *
+    * TODO: Only Owner instead of onlyMinter
     */
   function updateCoffee(string memory _ipfs) public onlyMinter {
     require(bytes(_ipfs).length != 0, "The IPFS pointer cannot be empty.");
