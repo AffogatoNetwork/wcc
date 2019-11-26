@@ -72,8 +72,8 @@ contract CoffeeHandler is Ownable {
   function stakeDAI(uint _amount) public onlyNotPaused {
     require(DAI_CONTRACT.balanceOf(msg.sender) >= _amount, "Not enough balance");
     require(DAI_CONTRACT.allowance(msg.sender, address(this)) >= _amount, "Contract allowance is to low or not approved");
-    DAI_CONTRACT.transferFrom(msg.sender, address(this), _amount);
     userToStake[msg.sender] = userToStake[msg.sender].add(_amount);
+    DAI_CONTRACT.transferFrom(msg.sender, address(this), _amount);
     emit LogStakeDAI(msg.sender, _amount, userToStake[msg.sender]);
   }
 
