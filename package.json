@@ -13,9 +13,8 @@
     "ganache": "npx buidler run --network localhost scripts/deploy.ts",
     "rinkeby": "npx buidler run --network rinkeby scripts/deploy.ts",
     "updateCoffee": "npx buidler run --network rinkeby scripts/updateCoffee.ts",
-    "flatten": "npx truffle-flattener ./contracts/CoffeeHandler.sol > ./artifacts/CoffeeHandler.sol",
-    "verifych": "npx buidler verify-contract --contract-name CoffeeHandler --address 0x52fdc9C1505d331051623aAd8aC0ce0A2C89F2cb",
-    "verifywcc": "npx buidler verify-contract --contract-name WrappedCoffeeCoin --address 0xA86571FF4e305Ad04449e03E7Bc159d709f05ec8"
+    "verifych": "npx buidler verify-contract --contract-name CoffeeHandler --address 0x0db175aceE9BF6195b82ac966f978eb37D44EC2E",
+    "verifywcc": "npx buidler verify-contract --contract-name WrappedCoffeeCoin --address 0x79a1772Ae1590bD783e246AA4dE9580E0D4b49e2"
   },
   "dependencies": {
     "@openzeppelin/contracts": "^2.4.0",
