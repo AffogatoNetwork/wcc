@@ -17,7 +17,7 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
   string private ipfsHash;
   address public coffeeHandler;
 
-  constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 0) public {}
+  constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 18) public {}
 
   function setCoffeeHandler(address _coffeeHandler) public onlyOwner{
     addMinter(_coffeeHandler);
@@ -57,9 +57,9 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
 
   /**
     * @notice Updates the IPFS pointer for the information about this coffee.
-    *
+    * 
     */
-  function updateCoffee(string memory _ipfs) public onlyMinter {
+  function updateCoffee(string memory _ipfs) public onlyOwner {
     require(bytes(_ipfs).length != 0, "The IPFS pointer cannot be empty.");
     ipfsHash = _ipfs;
   }

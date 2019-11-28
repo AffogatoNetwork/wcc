@@ -1,6 +1,6 @@
 import { ethers } from "@nomiclabs/buidler";
 import { deployContract, getWallets, solidity } from "ethereum-waffle";
-import WrappedCoffeeCoinArtifact from "../build/WrappedCoffeeCoin.json";
+import WrappedCoffeeCoinArtifact from "../artifacts/WrappedCoffeeCoin.json";
 import { WrappedCoffeeCoin } from "../typechain/WrappedCoffeeCoin";
 import chai from "chai";
 import { constants } from "ethers";

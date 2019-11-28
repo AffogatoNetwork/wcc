@@ -11,7 +11,6 @@ const config: BuidlerConfig = {
   solc: {
     version: "0.5.12"
   },
-
   //@ts-ignore
   networks: {
     buidlerevm: {
