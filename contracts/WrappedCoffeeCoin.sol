@@ -1,3 +1,9 @@
+/** @title Wrapped Coffee Coin
+  * @author Affogato
+  * @notice An ERC that will represent deposited coffee to a validator having DAI staked as collateral.
+  * @dev When deploying the contract the deployer needs to specify the coffee handler and renounce as minter.
+  * @dev this is a pilot contract
+  */
 pragma solidity ^0.5.11;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -6,19 +12,24 @@ import "@openzeppelin/contracts/access/roles/MinterRole.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "./IERC20WCC.sol";
 
-/**
- * @notice An ERC that will represent deposited coffee to a validator.
- * @dev When deploying the contract the deployer should renounce the minter role after it has added the TokenHandler as minter.
- */
-
 contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
-  event LogSetCoffeeHandler(address indexed _owner, address _contract);
 
+  /** @dev Logs all the calls of the functions. */
+  event LogSetCoffeeHandler(address indexed _owner, address _contract);
+  event LogUpdateCoffee(address indexed _owner, string _ipfsHash);
+
+  /** @notice an ipfs hash of the json with the coffee information */
   string private ipfsHash;
+  /** @notice address of the coffee handler contract */
   address public coffeeHandler;
 
+  /** @notice Initializes the ERC20 Details*/
   constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 18) public {}
 
+  /** @notice Sets the coffee handler
+    * @param _coffeeHandler address of the coffee handler contract allowed to mint tokens
+    * @dev owner renounces as minter, it's not done in constructor due to a bug
+    */
   function setCoffeeHandler(address _coffeeHandler) public onlyOwner{
     addMinter(_coffeeHandler);
     coffeeHandler = _coffeeHandler;
@@ -26,41 +37,41 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
     emit LogSetCoffeeHandler(msg.sender, _coffeeHandler);
   }
 
-  /**
-    * @notice Called when a minter wants to create new tokens.
-    * @dev See `ERC20._mint`.
-    *
-    * Requirements:
-    *
-    * - the caller must have the `MinterRole`.
-    *  TODO:  Farmer must approve mint before minting
+  /** @notice Called when a minter wants to create new tokens
+    * @param _account account to be assigned the minted tokens
+    * @param _amount amount of tokens to be minted
+    * @dev See `ERC20._mint`, coffee handler address must be set before minting
     */
-  function mint(address account, uint256 amount) public onlyMinter returns (bool) {
+  function mint(address _account, uint256 _amount) public onlyMinter returns (bool) {
     require(coffeeHandler != address(0), "Coffee Handler must be set");
-    _mint(account, amount);
+    _mint(_account, _amount);
     return true;
   }
 
-  function burn(address account, uint256 amount) public onlyMinter returns (bool) {
+  /** @notice Called when a minter wants to burn the tokens
+    * @param _account account to be assigned the burned tokens
+    * @param _amount amount of tokens to be burned
+    * @dev See `ERC20._mint`.  coffee handler address must be set before minting
+    */
+  function burn(address _account, uint256 _amount) public onlyMinter returns (bool) {
     require(coffeeHandler != address(0), "Coffee Handler must be set");
-    _burn(account, amount);
+    _burn(_account, _amount);
     return true;
   }
 
-  /**
-    * @notice Returns the hash pointer to the file containing the details about the coffee this token represents.
-    *
+  /** @notice Returns the hash pointer to the file containing the details about the coffee this token represents.
+    * @return string with the ipsh hash pointing to a json with the coffee information
     */
   function getCoffee() public view returns(string memory) {
     return ipfsHash;
   }
 
-  /**
-    * @notice Updates the IPFS pointer for the information about this coffee.
-    * 
+  /** @notice Updates the IPFS pointer for the information about this coffee.
+    * @param _ipfs ipfs hash
     */
   function updateCoffee(string memory _ipfs) public onlyOwner {
-    require(bytes(_ipfs).length != 0, "The IPFS pointer cannot be empty.");
+    require(bytes(_ipfs).length != 0, "The IPFS pointer cannot be empty");
     ipfsHash = _ipfs;
+    emit LogUpdateCoffee(msg.sender, ipfsHash);
   }
 }

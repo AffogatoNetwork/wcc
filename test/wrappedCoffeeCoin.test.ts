@@ -12,6 +12,7 @@ require("chai").should();
 describe("WrappedCoffeeCoin", () => {
   describe("ERC20 Validations", () => {
     const provider = ethers.provider;
+    const IPFS_HASH = "QmaoLeVeFjGDGk6mL7JBiEKS9nFvqdEHvmxpXXQGEvySSN";
     let accounts = getWallets(provider);
     let wrappedCoffeeCoin: WrappedCoffeeCoin;
 
@@ -29,7 +30,7 @@ describe("WrappedCoffeeCoin", () => {
       let decimals = await wrappedCoffeeCoin.decimals();
       name.should.be.equal("Wrapped Coffee Coin");
       symbol.should.be.equal("WCC");
-      decimals.should.be.equal(0);
+      decimals.should.be.equal(18);
     });
 
     it("...should set minter", async () => {
@@ -51,27 +52,21 @@ describe("WrappedCoffeeCoin", () => {
       );
     });
 
-    // it("...should validate permissions", async () => {
-    //   let isException = false;
-    //   try {
-    //     await this.tokenInstance.wrapCoffee(accounts[0], 1, {
-    //       from: accounts[0]
-    //     });
-    //   } catch (err) {yartn
-    //     isException = true;
-    //     assert(err.reason === "caller must be holder contract");
-    //   }
-    //   isException.should.equal(true, "should rever on not a holder account");
-    //   isException = false;
-    //   try {
-    //     await this.tokenInstance.unwrapCoffee(accounts[0], 1, {
-    //       from: accounts[0]
-    //     });
-    //   } catch (err) {
-    //     isException = true;
-    //     assert(err.reason === "caller must be holder contract");
-    //   }
-    //   isException.should.equal(true, "should rever on not a holder account");
-    // });
+    it("...should set the coffee information", async () => {
+      let ipfsHash = await wrappedCoffeeCoin.getCoffee();
+      ipfsHash.should.eq("", "Hash should be empty");
+      let wccNotOwner = wrappedCoffeeCoin.connect(accounts[1]);
+      await expect(wccNotOwner.updateCoffee(IPFS_HASH)).to.be.revertedWith(
+        "Ownable: caller is not the owner"
+      );
+      await expect(wrappedCoffeeCoin.updateCoffee("")).to.be.revertedWith(
+        "The IPFS pointer cannot be empty"
+      );
+      await expect(wrappedCoffeeCoin.updateCoffee(IPFS_HASH))
+        .to.emit(wrappedCoffeeCoin, "LogUpdateCoffee")
+        .withArgs(accounts[0].address, IPFS_HASH);
+      ipfsHash = await wrappedCoffeeCoin.getCoffee();
+      ipfsHash.should.eq(IPFS_HASH, "Hash should be updated");
+    });
   });
 });
