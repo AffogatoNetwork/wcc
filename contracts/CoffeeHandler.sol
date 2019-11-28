@@ -1,3 +1,6 @@
+/** @title Actor Factory.
+ *  @author Affogato
+ */
 pragma solidity ^0.5.11;
 
 import "@openzeppelin/contracts/ownership/Ownable.sol";
@@ -7,6 +10,7 @@ import "./IERC20WCC.sol";
 
 contract CoffeeHandler is Ownable {
 
+  /** @dev Logs all the actions of the functions. */
   event LogSetDAIContract(address indexed _owner, IERC20 _contract);
   event LogSetWCCContract(address indexed _owner, IERC20WCC _contract);
   event LogSetCoffeePrice(address indexed _owner, uint _coffeePrice);
@@ -31,52 +35,80 @@ contract CoffeeHandler is Ownable {
   mapping (address => address) public userToValidator;
   uint256 public openingTime;
 
-
-  modifier onlyPaused(){
+  /** @notice Throws if the function called is after 3 months
+    * @dev This is temporal for pilot it should be variable depending on coffee
+    */
+  modifier onlyPaused() {
     /* solium-disable-next-line */
     require(now >= openingTime + 90 days, "only available after 3 months of deployment");
     _;
   }
 
-  modifier onlyNotPaused(){
+  /** @notice Throws if the function called is before 3 months
+    * @dev This is temporal for pilot it should be variable depending on coffee
+    */
+  modifier onlyNotPaused() {
     /* solium-disable-next-line */
     require(now <= openingTime + 90 days, "only available during the 3 months of deployment");
     _;
   }
-
+  /** @notice Constructor sets the starting time
+    * @dev opening time is only relevant for pilot
+    */
   constructor() public {
     /* solium-disable-next-line */
     openingTime = now;
   }
 
-  function setDAIContract(IERC20 _DAI_CONTRACT) public onlyOwner{
+  /** @notice Sets the DAI Contract, Only deployer can change it
+    * @param _DAI_CONTRACT address of ERC-20 used as stake
+    */
+  function setDAIContract(IERC20 _DAI_CONTRACT) public onlyOwner {
     DAI_CONTRACT = _DAI_CONTRACT;
     emit LogSetDAIContract(msg.sender, _DAI_CONTRACT);
   }
 
-  function setWCCContract(IERC20WCC _WCC_CONTRACT) public onlyOwner{
+  /** @notice Sets the Wrapped Coffee Coin Contract, Only deployer can change it
+    * @param _WCC_CONTRACT address of ERC-20 used as stake
+    */
+  function setWCCContract(IERC20WCC _WCC_CONTRACT) public onlyOwner {
     WCC_CONTRACT = _WCC_CONTRACT;
     emit LogSetWCCContract(msg.sender, _WCC_CONTRACT);
   }
 
-  function setCoffeePrice(uint _COFFEE_PRICE) public onlyOwner{
+  /** @notice Sets the price of the coffee, Only deployer can change it
+    * @param _COFFEE_PRICE uint with the coffee price
+    * @dev this function should be called by an oracle after pilot
+    */
+  function setCoffeePrice(uint _COFFEE_PRICE) public onlyOwner {
     COFFEE_PRICE = _COFFEE_PRICE;
     emit LogSetCoffeePrice(msg.sender, _COFFEE_PRICE);
   }
 
+  /** @notice Sets the stake rate needed for minting tokens, only deployer can change it
+    * @param _STAKE_RATE uint with the rate to stake
+    */
   function setStakeRate(uint _STAKE_RATE) public onlyOwner{
     STAKE_RATE = _STAKE_RATE;
     emit LogSetStakeRate(msg.sender, _STAKE_RATE);
   }
 
+  /** @notice Allows a user to stake ERC20
+    * @param _amount uint with the rate to stake
+    * @dev Requires users to approve first in the ERC20
+    */
   function stakeDAI(uint _amount) public onlyNotPaused {
     require(DAI_CONTRACT.balanceOf(msg.sender) >= _amount, "Not enough balance");
     require(DAI_CONTRACT.allowance(msg.sender, address(this)) >= _amount, "Contract allowance is to low or not approved");
-    DAI_CONTRACT.transferFrom(msg.sender, address(this), _amount);
     userToStake[msg.sender] = userToStake[msg.sender].add(_amount);
+    DAI_CONTRACT.transferFrom(msg.sender, address(this), _amount);
     emit LogStakeDAI(msg.sender, _amount, userToStake[msg.sender]);
   }
 
+  /** @notice Allows a user to remove the current available staked ERC20, DA
+    * @param _amount uint with the rate to stake
+    * @dev Requires users to approve first in the ERC20
+    */
   function _removeStakedDAI(uint _amount) private {
     require(userToStake[msg.sender] >= _amount, "Amount bigger than current available to retrive");
     userToStake[msg.sender] = userToStake[msg.sender].sub(_amount);
