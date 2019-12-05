@@ -112,7 +112,7 @@ contract CoffeeHandler is Ownable {
     * @param _amount uint with the stake
     * @dev Requires users to approve first in the ERC20
     */
-  function stakeDAI(uint _amount) public onlyNotPaused {
+  function stakeDAI(uint _amount) public onlyNotPaused onlyOwner {
     require(DAI_CONTRACT.balanceOf(msg.sender) >= _amount, "Not enough balance");
     require(DAI_CONTRACT.allowance(msg.sender, address(this)) >= _amount, "Contract allowance is to low or not approved");
     userToStake[msg.sender] = userToStake[msg.sender].add(_amount);
@@ -149,7 +149,7 @@ contract CoffeeHandler is Ownable {
     * @param _amount uint with the amount in wei to mint
     * @dev Requires receiver to approve first, it moves the staked ERC20 to another mapping to prove that the stake is being used and unable to retreive.
     */
-  function mintTokens(address _receiver, uint _amount) public {
+  function mintTokens(address _receiver, uint _amount) public onlyOwner {
     require(tokensMintApproved[_receiver][msg.sender] >= _amount, "Mint value bigger than approved by user");
     uint expectedAvailable = requiredAmount(_amount);
     require(userToStake[msg.sender] >= expectedAvailable, "Not enough DAI Staked");
