@@ -22,6 +22,10 @@ const config: BuidlerConfig = {
     rinkeby: {
       url: process.env.RINKEBY_API_URL,
       accounts: { mnemonic: mnemonic }
+    },
+    kovan: {
+      url: process.env.KOVAN_API_URL,
+      accounts: { mnemonic: mnemonic }
     }
   },
   etherscan: {

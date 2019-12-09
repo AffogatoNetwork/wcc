@@ -11,7 +11,7 @@
     "typechain": "npx buidler compile && typechain --outDir typechain --target ethers 'artifacts/*.json'",
     "test": "npx buidler test",
     "ganache": "npx buidler run --network localhost scripts/deploy.ts",
-    "rinkeby": "npx buidler run --network rinkeby scripts/deploy.ts",
+    "deploy": "npx buidler run scripts/deploy.ts",
     "updateCoffee": "npx buidler run --network rinkeby scripts/updateCoffee.ts",
     "verifych": "npx buidler verify-contract --contract-name CoffeeHandler --address 0x0db175aceE9BF6195b82ac966f978eb37D44EC2E",
     "verifywcc": "npx buidler verify-contract --contract-name WrappedCoffeeCoin --address 0x79a1772Ae1590bD783e246AA4dE9580E0D4b49e2"
