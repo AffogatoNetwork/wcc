@@ -12,10 +12,10 @@
 
 ## Kovan
 
-### CoffeeHandlerContract.address 0x47b5E033701C5D39ae5DcA923bB412ea0dd3c854
+### CoffeeHandlerContract.address
 
-#### Hash 0x317b46924d974c463079eae47775eca59417860fe3df2c80be315d1b074f745d
+#### Hash
 
-### wrappedCoffeeCoinContract.address 0xfD057d6CC2418A29CC09B0F9e1dC3e838aDc993B
+### wrappedCoffeeCoinContract.address
 
-#### Hash 0x1efb5da03a461164c685e9a8ff0c0097cc218368884770c3b6562e41888b5b3a
+#### Hash
