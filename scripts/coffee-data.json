@@ -4,19 +4,19 @@
     "bio": "Born in 1953. Due to financial hardships, he had to start working at age 15 in the coffee business at “Beneficios de Café.” Throughout the years he married and had several kidd, which motivated him to acquire land to farm coffee. He later moved to Marcala, in the township of Chinacla, where he has been producing coffee for the last 20 years."
   },
   "farm": {
-    "Country": "Honduras",
-    "Region": "Marcala",
-    "Farm": "Santa Clara",
-    "Elevation": "1550m"
+    "country": "Honduras",
+    "region": "Marcala",
+    "farm": "Santa Clara",
+    "elevation": "1550m"
   },
   "coffee": {
-    "Variety": "Red Catuai",
-    "Process": "Washed",
+    "variety": "Red Catuai",
+    "process": "Washed",
     "score": 88,
     "notes": "Caramel, Almonds, Citric",
     "additional": "Washed Arabica Coffee, SHG EP Special Coffee Product of Honduras, Crop: 2019/2020",
-    "Lot": 749,
-    "PDA": "13-167-550",
-    "Weight": "15KG"
+    "lot": 749,
+    "pda": "13-167-550",
+    "weight": "15KG"
   }
 }

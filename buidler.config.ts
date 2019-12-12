@@ -26,11 +26,15 @@ const config: BuidlerConfig = {
     kovan: {
       url: process.env.KOVAN_API_URL,
       accounts: { mnemonic: mnemonic }
+    },
+    main: {
+      url: process.env.MAIN_API_URL,
+      accounts: { mnemonic: mnemonic }
     }
   },
   etherscan: {
     // The url for the Etherscan API you want to use.
-    url: "https://api-rinkeby.etherscan.io/api",
+    url: process.env.ETHERSCAN_URL as string,
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
     apiKey: process.env.ETHERSCAN_API_KEY as string

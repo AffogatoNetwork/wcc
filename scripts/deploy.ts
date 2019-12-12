@@ -11,25 +11,7 @@ async function main() {
 
   // The address the Contract WILL have once mined
   console.log("TCL: main -> coffeeHandlerContract.address", coffeeHandlerContract.address);
-  // let file = "build/CoffeeHandler.json";
-  // let newData = { address: coffeeHandlerContract.address };
-  // jsonfile.readFile(file, (err: any, oldData: any) => {
-  //   if (err) console.error(err);
-  //   jsonfile.writeFile(file, Object.assign(oldData, newData), (err: any) => {
-  //     if (err) console.error(err);
-  //     else console.log("Contract JSON updated");
-  //   });
-  // });
 
-  // let wccfile = "build/WrappedCoffeeCoin.json";
-  // newData = { address: wrappedCoffeeCoinContract.address };
-  // jsonfile.readFile(wccfile, (err: any, oldData: any) => {
-  //   if (err) console.error(err);
-  //   jsonfile.writeFile(wccfile, Object.assign(oldData, newData), (err: any) => {
-  //     if (err) console.error(err);
-  //     else console.log("Contract JSON updated");
-  //   });
-  // });
   // The transaction that was sent to the network to deploy the Contract
   console.log(
     "TCL: main -> coffeeHandlerContract.deployTransaction.hash",

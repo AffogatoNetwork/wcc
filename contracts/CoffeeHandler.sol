@@ -1,5 +1,6 @@
 /** @title Coffee Handler
   * @author Affogato
+  * @dev Right now only owner can mint and stake
   */
 pragma solidity ^0.5.11;
 
@@ -30,22 +31,30 @@ contract CoffeeHandler is Ownable {
     * @dev The WCC Contract must have set the coffee handler
     */
   IERC20WCC public WCC_CONTRACT;
+
   /** @notice address of the DAI Contract used to stake */
   IERC20 public DAI_CONTRACT;
+
   /** @notice coffee price rounded */
   uint public COFFEE_PRICE;
+
   /** @notice percentage value with no decimals */
   uint public STAKE_RATE;
+
   /** @notice mapping of the stake of a validator */
   mapping (address => uint) public userToStake;
+
   /** @notice mapping of the stake used in a mint */
   mapping (address => uint) public tokensUsed;
+
   /** @notice mapping of the approval done by an user to a validator */
   mapping (address => mapping (address => uint)) public tokensMintApproved;
+
   /** @notice mapping of which validator minted a token for a user
     * @dev this is used to see to which validator return the stake
     */
   mapping (address => address) public userToValidator;
+
   /** @notice date of when the contract was deployed */
   uint256 public openingTime;
 

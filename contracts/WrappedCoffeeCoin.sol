@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/access/roles/MinterRole.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
-import "./IERC20WCC.sol";
 
 contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
 
@@ -24,7 +23,7 @@ contract WrappedCoffeeCoin is ERC20, ERC20Detailed, Ownable, MinterRole {
   address public coffeeHandler;
 
   /** @notice Initializes the ERC20 Details*/
-  constructor() ERC20Detailed("Wrapped Coffee Coin", "WCC", 18) public {}
+  constructor() ERC20Detailed("Single Coffee Token", "CAFE", 18) public {}
 
   /** @notice Sets the coffee handler
     * @param _coffeeHandler address of the coffee handler contract allowed to mint tokens

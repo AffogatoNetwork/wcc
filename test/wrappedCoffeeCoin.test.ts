@@ -28,8 +28,8 @@ describe("WrappedCoffeeCoin", () => {
       let name = await wrappedCoffeeCoin.name();
       let symbol = await wrappedCoffeeCoin.symbol();
       let decimals = await wrappedCoffeeCoin.decimals();
-      name.should.be.equal("Wrapped Coffee Coin");
-      symbol.should.be.equal("WCC");
+      name.should.be.equal("Single Coffee Token");
+      symbol.should.be.equal("CAFE");
       decimals.should.be.equal(18);
     });
 
