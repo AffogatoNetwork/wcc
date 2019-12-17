@@ -27,7 +27,7 @@ const config: BuidlerConfig = {
       url: process.env.KOVAN_API_URL,
       accounts: { mnemonic: mnemonic }
     },
-    main: {
+    mainnet: {
       url: process.env.MAIN_API_URL,
       accounts: { mnemonic: mnemonic }
     }
