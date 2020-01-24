@@ -12,13 +12,13 @@
 
 ## Rinkeby
 
-### CoffeeHandlerContract.address 0x0db175aceE9BF6195b82ac966f978eb37D44EC2E
+### CoffeeHandlerContract.address 0x3BE83e6F529f02B8642E5BDBCB9B1b6316251422
 
-#### Hash 0xabe5a4e135341b69876331fd8f8fc8e3ad9cdb30091b9bb9a23caa8d76dc84cb
+#### Hash 0xca53fec9b640c6a3db473bb96f05b1904646dc0f9e779220976e759cb67d8208
 
-### wrappedCoffeeCoinContract.address 0x79a1772Ae1590bD783e246AA4dE9580E0D4b49e2
+### wrappedCoffeeCoinContract.address 0x7dA7ee7c0655017F29AC1b883097b33B31b1c7D1
 
-#### Hash 0xf6f2b1b73ba5e08c405fe511779d70376b318d02b3edb6cc847adad9dfcf4385
+#### Hash 0xeae5a062e67c4bcd669157b8476a9ed2fe4fbf3d5c1c46fa42d030712179e6b2
 
 ## Kovan
 
