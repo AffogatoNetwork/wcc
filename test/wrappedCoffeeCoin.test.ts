@@ -1,4 +1,4 @@
-import { ethers } from "@nomiclabs/buidler";
+import { ethers, waffle } from "@nomiclabs/buidler";
 import { deployContract, getWallets, solidity } from "ethereum-waffle";
 import WrappedCoffeeCoinArtifact from "../artifacts/WrappedCoffeeCoin.json";
 import { WrappedCoffeeCoin } from "../typechain/WrappedCoffeeCoin";
@@ -11,9 +11,8 @@ require("chai").should();
 
 describe("WrappedCoffeeCoin", () => {
   describe("ERC20 Validations", () => {
-    const provider = ethers.provider;
     const IPFS_HASH = "QmaoLeVeFjGDGk6mL7JBiEKS9nFvqdEHvmxpXXQGEvySSN";
-    let accounts = getWallets(provider);
+    let accounts = getWallets(waffle.provider);
     let wrappedCoffeeCoin: WrappedCoffeeCoin;
 
     before(async () => {

@@ -1,6 +1,6 @@
 // Same as open but with transfer of ownership
 
-import { ethers } from "@nomiclabs/buidler";
+import { ethers, waffle } from "@nomiclabs/buidler";
 import { deployContract, getWallets, solidity } from "ethereum-waffle";
 import chai from "chai";
 import CoffeeHandlerArtifact from "../artifacts/CoffeeHandler.json";
@@ -16,8 +16,7 @@ const { expect } = chai;
 require("chai").should();
 
 describe("CoffeeHandler", () => {
-  const provider = ethers.provider;
-  let accounts = getWallets(provider);
+  let accounts = getWallets(waffle.provider);
   let coffeeHandler: CoffeeHandler;
   let coffeeHandlerInstance: CoffeeHandler[] = [];
   let daiToken: DaiToken;

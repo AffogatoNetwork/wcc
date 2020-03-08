@@ -1,11 +1,11 @@
 require("dotenv").config();
 import { BuidlerConfig, usePlugin } from "@nomiclabs/buidler/config";
-import waffleDefaultAccounts from "ethereum-waffle/dist/config/defaultAccounts";
+//import waffleDefaultAccounts from "ethereum-waffle/dist/config/defaultAccounts";
 
-usePlugin("@nomiclabs/buidler-ethers");
+usePlugin("@nomiclabs/buidler-waffle");
 usePlugin("@nomiclabs/buidler-etherscan");
 
-const mnemonic = process.env.MNENOMIC;
+const mnemonic = process.env.MNENOMIC as string;
 
 const config: BuidlerConfig = {
   solc: {
@@ -14,10 +14,10 @@ const config: BuidlerConfig = {
   //@ts-ignore
   networks: {
     buidlerevm: {
-      accounts: waffleDefaultAccounts.map(acc => ({
-        balance: acc.balance,
-        privateKey: acc.secretKey
-      }))
+      // accounts: waffleDefaultAccounts.map(acc => ({
+      //   balance: acc.balance,
+      //   privateKey: acc.secretKey
+      // }))
     },
     rinkeby: {
       url: process.env.RINKEBY_API_URL,
