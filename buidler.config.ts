@@ -1,6 +1,5 @@
 require("dotenv").config();
 import { BuidlerConfig, usePlugin } from "@nomiclabs/buidler/config";
-//import waffleDefaultAccounts from "ethereum-waffle/dist/config/defaultAccounts";
 
 usePlugin("@nomiclabs/buidler-waffle");
 usePlugin("@nomiclabs/buidler-etherscan");
