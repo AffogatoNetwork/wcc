@@ -2,7 +2,7 @@
   * @author Affogato
   * @dev Right now only owner can mint and stake
   */
-pragma solidity ^0.5.11;
+pragma solidity ^0.5.5;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
@@ -12,17 +12,17 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
 
   /** @dev Logs all the calls of the functions. */
   event LogUpdateCoffee(address indexed _owner, string _ipfsHash);
+  event LogBuyToken(address indexed _owner, uint _value);
 
-  uint a = 5; // Maximum value  / 2
-  uint b = 5; // inflection point
-  uint c = 75; // curve steppeness
-  uint k = 10; // Inital curve value
+  uint public maximumValue; // Maximum value  / 2
+  uint public midValue; // Maximum value  / 2
+  uint public inflectionPoint; // inflection point
+  uint public steppeness ; // curve steppeness
+  uint public initialValue; // Inital curve value
+  uint public etherPrice;
 
-  uint public poolBalance = 0;
-  uint public maxMint = 30;
-  uint public mintedTokens = 0;
-
-  mapping(address => uint) public tokenBalance;
+  uint public poolBalance;
+  uint public maximumMint;
 
   /** @notice an ipfs hash of the json with the coffee information */
   string private ipfsHash;
@@ -31,7 +31,22 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
   constructor(
     string memory name,
     string memory symbol,
-    uint8 decimals) ERC20Detailed(name, symbol, decimals) public {
+    uint8 decimals,
+    uint _maximumValue,
+    uint _inflectionPoint,
+    uint _steppeness,
+    uint _initialValue,
+    uint _maximumMint,
+    uint _etherPrice
+  ) ERC20Detailed(name, symbol, decimals) public {
+    maximumValue = _maximumValue;
+    midValue = maximumValue/2; // Maximum value  / 2
+    inflectionPoint = _inflectionPoint; // inflection point
+    steppeness = _steppeness; // curve steppeness
+    initialValue = _initialValue; // Inital curve value
+    maximumMint = _maximumMint;
+    etherPrice = _etherPrice;
+    poolBalance = 0;
   }
 
   function sqrt(uint x) internal pure returns (uint y){
@@ -46,29 +61,30 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
     y = y / 100; // divided for decimal precision
   }
 
-  function tokenPrice (uint x) public view returns (uint y){
-    if(x < b){
-      y = k;
+  function tokenPrice (uint x) private view returns (uint y){
+    if(x < inflectionPoint){
+      y = initialValue;
     }else{
-      y = ((a*(((x-b)*100) / sqrt(c + ((x-b)*(x-b)))))/100) + a + k;
+      //error
+      y = ((midValue*(((x-inflectionPoint)*100) / sqrt(steppeness + ((x-inflectionPoint)*(x-inflectionPoint)))))/100) + midValue + initialValue;
     }
   }
 
   function buyToken() public payable {
-    require(mintedTokens <= maxMint, "Can't mint more tokens");
-    mintedTokens++;
-    require(tokenPrice(mintedTokens) * 1 ether == msg.value, "Not enought payment");
-    poolBalance = poolBalance + tokenPrice(mintedTokens);
-    tokenBalance[msg.sender] = tokenBalance[msg.sender] + 1;
+    require(totalSupply() <= maximumMint, "Can't mint more tokens");
+    uint mintedTokens = totalSupply() + 1;
+    require(tokenPrice(mintedTokens) * etherPrice == msg.value, "Not enought payment");
+    poolBalance = poolBalance + (tokenPrice(mintedTokens) * etherPrice);
+    _mint(msg.sender, 1);
+    emit LogBuyToken(msg.sender, msg.value);
   }
 
   function burnToken() public {
-    require(tokenBalance[msg.sender] >= 1, "Not enough tokens to burn");
-    tokenBalance[msg.sender] = tokenBalance[msg.sender] - 1;
-    mintedTokens--;
-    poolBalance = poolBalance - tokenPrice(mintedTokens);
+    require(balanceOf(msg.sender) >= 1, "Not enough tokens to burn");
+   //burn token
+    poolBalance = poolBalance - (tokenPrice(totalSupply()) * etherPrice);
     /* solium-disable-next-line */
-    (bool success, ) = msg.sender.call.value(tokenPrice(mintedTokens) * 1 ether)("");
+    (bool success, ) = msg.sender.call.value(tokenPrice(totalSupply()) * etherPrice)("");
     require(success, "Transfer failed.");
   }
 

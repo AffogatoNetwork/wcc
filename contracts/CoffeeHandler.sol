@@ -2,7 +2,7 @@
   * @author Affogato
   * @dev Right now only owner can mint and stake
   */
-pragma solidity ^0.5.11;
+pragma solidity ^0.5.5;
 
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";

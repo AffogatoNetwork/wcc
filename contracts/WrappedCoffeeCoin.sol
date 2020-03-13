@@ -4,7 +4,7 @@
   * @dev When deploying the contract the deployer needs to specify the coffee handler and renounce as minter.
   * @dev this is a pilot contract
   */
-pragma solidity ^0.5.11;
+pragma solidity ^0.5.5;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
