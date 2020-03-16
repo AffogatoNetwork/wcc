@@ -7,12 +7,18 @@ pragma solidity ^0.5.5;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+
+//Testing
+import "@nomiclabs/buidler/console.sol";
 
 contract BondingToken is ERC20, ERC20Detailed, Ownable {
 
   /** @dev Logs all the calls of the functions. */
   event LogUpdateCoffee(address indexed _owner, string _ipfsHash);
   event LogBuyToken(address indexed _owner, uint _value);
+
+  using SafeMath for uint256;
 
   uint public maximumValue; // Maximum value  / 2
   uint public midValue; // Maximum value  / 2
@@ -52,21 +58,24 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
   function sqrt(uint x) internal pure returns (uint y){
     //multiplied for decimal precision
     uint tempX = x * 10000;
-    uint z = (tempX + 1) / 2;
+    uint z = (tempX + 1)/2;
     y = tempX;
     while (z < y) {
       y = z;
-      z = (x / z + z) / 2;
+      z = (tempX / z + z) / 2;
     }
     y = y / 100; // divided for decimal precision
   }
 
   function tokenPrice (uint x) private view returns (uint y){
-    if(x < inflectionPoint){
+    if(x <= inflectionPoint){
       y = initialValue;
     }else{
       //error
-      y = ((midValue*(((x-inflectionPoint)*100) / sqrt(steppeness + ((x-inflectionPoint)*(x-inflectionPoint)))))/100) + midValue + initialValue;
+      uint top = midValue.mul(x.sub(inflectionPoint).mul(100));
+      uint bottom = sqrt(steppeness.add(x.sub(inflectionPoint).mul(x.sub(inflectionPoint))));
+      y = top.div(bottom).div(100).add(midValue).add(initialValue);
+      // y = ((midValue*(((x-inflectionPoint)*100) / sqrt(steppeness + ((x-inflectionPoint)*(x-inflectionPoint)))))/100) + midValue + initialValue;
     }
   }
 

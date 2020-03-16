@@ -108,7 +108,7 @@ describe("BondingToken", () => {
 
     it("...should cost the minimun value while inflection point is low", async () => {
       let iterator = 2;
-      while (iterator < inflectionPoint) {
+      while (iterator <= inflectionPoint) {
         let amount = utils.parseEther("1");
         await expect(bondingTokenInstance[1].buyToken({ value: amount }))
           .to.emit(bondingToken, "LogBuyToken")
