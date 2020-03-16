@@ -67,7 +67,7 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
     y = y / 100; // divided for decimal precision
   }
 
-  function tokenPrice (uint x) private view returns (uint y){
+  function _tokenPrice(uint x) private view returns (uint y){
     if(x <= inflectionPoint){
       y = initialValue;
     }else{
@@ -79,11 +79,15 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
     }
   }
 
+  function tokenPrice(uint x) public view returns (uint y){
+    y = _tokenPrice(x).mul(etherPrice);
+  }
+
   function buyToken() public payable {
-    require(totalSupply() <= maximumMint, "Can't mint more tokens");
+    require(totalSupply().add(1) <= maximumMint, "Can't mint more tokens");
     uint mintedTokens = totalSupply() + 1;
-    require(tokenPrice(mintedTokens) * etherPrice == msg.value, "Not enought payment");
-    poolBalance = poolBalance + (tokenPrice(mintedTokens) * etherPrice);
+    require(tokenPrice(mintedTokens) == msg.value, "Not enought payment");
+    poolBalance = poolBalance.add(tokenPrice(mintedTokens));
     _mint(msg.sender, 1);
     emit LogBuyToken(msg.sender, msg.value);
   }
@@ -91,9 +95,9 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
   function burnToken() public {
     require(balanceOf(msg.sender) >= 1, "Not enough tokens to burn");
    //burn token
-    poolBalance = poolBalance - (tokenPrice(totalSupply()) * etherPrice);
+    poolBalance = poolBalance.sub(tokenPrice(totalSupply()));
     /* solium-disable-next-line */
-    (bool success, ) = msg.sender.call.value(tokenPrice(totalSupply()) * etherPrice)("");
+    (bool success, ) = msg.sender.call.value(tokenPrice(totalSupply()))("");
     require(success, "Transfer failed.");
   }
 

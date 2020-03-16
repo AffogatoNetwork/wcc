@@ -88,10 +88,21 @@ describe("BondingToken", () => {
       ipfsHash.should.eq(IPFS_HASH, "Hash should be updated");
     });
 
+    it("...should allow users to get the price of a token", async () => {
+      let iterator = 1;
+      while (iterator <= inflectionPoint) {
+        let amount = await bondingToken.tokenPrice(iterator);
+        amount.should.eq(utils.parseEther("1"));
+        iterator++;
+      }
+      let amount = await bondingToken.tokenPrice(6);
+      amount.should.eq(utils.parseEther("1.5"));
+    });
+
     it("...should allow users to mint a token", async () => {
       let balance = await bondingToken.balanceOf(accounts[1].address);
       balance.should.eq(0);
-      let amount = utils.parseEther("1");
+      let amount = await bondingToken.tokenPrice(1);
       await expect(bondingTokenInstance[1].buyToken()).to.be.revertedWith("Not enought payment");
       await expect(bondingTokenInstance[1].buyToken({ value: amount }))
         .to.emit(bondingToken, "LogBuyToken")
@@ -109,7 +120,7 @@ describe("BondingToken", () => {
     it("...should cost the minimun value while inflection point is low", async () => {
       let iterator = 2;
       while (iterator <= inflectionPoint) {
-        let amount = utils.parseEther("1");
+        let amount = await bondingToken.tokenPrice(1);
         await expect(bondingTokenInstance[1].buyToken({ value: amount }))
           .to.emit(bondingToken, "LogBuyToken")
           .withArgs(accounts[1].address, amount);
@@ -123,9 +134,39 @@ describe("BondingToken", () => {
         contractBalance.should.eq(poolBalance);
         iterator++;
       }
-      let amount = utils.parseEther("1");
+      let amount = await bondingToken.tokenPrice(5);
       await expect(bondingTokenInstance[1].buyToken({ value: amount })).to.be.revertedWith(
         "Not enought payment"
+      );
+      amount = await bondingToken.tokenPrice(6);
+      await expect(bondingTokenInstance[1].buyToken({ value: amount }))
+        .to.emit(bondingToken, "LogBuyToken")
+        .withArgs(accounts[1].address, amount);
+      amount = await bondingToken.tokenPrice(7);
+      await expect(bondingTokenInstance[1].buyToken({ value: amount }))
+        .to.emit(bondingToken, "LogBuyToken")
+        .withArgs(accounts[1].address, amount);
+    });
+
+    it("...should buy all tokens", async () => {
+      let iterator = (await bondingToken.totalSupply()).toNumber() + 1;
+      while (iterator <= maximumMint) {
+        let amount = await bondingToken.tokenPrice(iterator);
+        await expect(bondingTokenInstance[1].buyToken({ value: amount }))
+          .to.emit(bondingToken, "LogBuyToken")
+          .withArgs(accounts[1].address, amount);
+        let balance = await bondingToken.balanceOf(accounts[1].address);
+        balance.should.eq(iterator);
+        let totalSupply = await bondingToken.totalSupply();
+        totalSupply.should.eq(iterator);
+        let poolBalance = await bondingToken.poolBalance();
+        let contractBalance = await waffle.provider.getBalance(bondingToken.address);
+        contractBalance.should.eq(poolBalance);
+        iterator++;
+      }
+      let amount = await bondingToken.tokenPrice(iterator);
+      await expect(bondingTokenInstance[1].buyToken({ value: amount })).to.be.revertedWith(
+        "Can't mint more tokens"
       );
     });
   });
