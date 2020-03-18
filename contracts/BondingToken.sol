@@ -17,6 +17,7 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
   /** @dev Logs all the calls of the functions. */
   event LogUpdateCoffee(address indexed _owner, string _ipfsHash);
   event LogBuyToken(address indexed _owner, uint _value);
+  event LogBurnToken(address indexed _owner, uint _amount, uint _value);
 
   using SafeMath for uint256;
 
@@ -95,10 +96,13 @@ contract BondingToken is ERC20, ERC20Detailed, Ownable {
   function burnToken() public {
     require(balanceOf(msg.sender) >= 1, "Not enough tokens to burn");
    //burn token
-    poolBalance = poolBalance.sub(tokenPrice(totalSupply()));
+    uint amount = tokenPrice(totalSupply());
+    poolBalance = poolBalance.sub(amount);
+    _burn(msg.sender, 1);
     /* solium-disable-next-line */
-    (bool success, ) = msg.sender.call.value(tokenPrice(totalSupply()))("");
+    (bool success, ) = msg.sender.call.value(amount)("");
     require(success, "Transfer failed.");
+    emit LogBurnToken(msg.sender, 1, amount);
   }
 
   /** @notice Returns the hash pointer to the file containing the details about the coffee this token represents.

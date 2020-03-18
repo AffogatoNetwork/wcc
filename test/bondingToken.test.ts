@@ -103,6 +103,7 @@ describe("BondingToken", () => {
       let balance = await bondingToken.balanceOf(accounts[1].address);
       balance.should.eq(0);
       let amount = await bondingToken.tokenPrice(1);
+      let accountBalance = await waffle.provider.getBalance(accounts[1].address);
       await expect(bondingTokenInstance[1].buyToken()).to.be.revertedWith("Not enought payment");
       await expect(bondingTokenInstance[1].buyToken({ value: amount }))
         .to.emit(bondingToken, "LogBuyToken")
@@ -115,6 +116,8 @@ describe("BondingToken", () => {
       poolBalance.should.eq(amount);
       let contractBalance = await waffle.provider.getBalance(bondingToken.address);
       contractBalance.should.eq(poolBalance);
+      let newAccountBalance = await waffle.provider.getBalance(accounts[1].address);
+      expect(newAccountBalance.lt(accountBalance)).to.be.true;
     });
 
     it("...should cost the minimun value while inflection point is low", async () => {
@@ -168,6 +171,33 @@ describe("BondingToken", () => {
       await expect(bondingTokenInstance[1].buyToken({ value: amount })).to.be.revertedWith(
         "Can't mint more tokens"
       );
+    });
+
+    it("...should allow users to burn a token", async () => {
+      let contractBalance = await waffle.provider.getBalance(bondingToken.address);
+      let accountBalance = await waffle.provider.getBalance(accounts[1].address);
+      let tokenBalance = await bondingToken.balanceOf(accounts[1].address);
+      let poolBalance = await bondingToken.poolBalance();
+      let totalSupply = await bondingToken.totalSupply();
+      let amount = await bondingToken.tokenPrice(totalSupply);
+      await expect(bondingTokenInstance[2].burnToken()).to.be.revertedWith(
+        "Not enough tokens to burn"
+      );
+      await expect(bondingTokenInstance[1].burnToken())
+        .to.emit(bondingToken, "LogBurnToken")
+        .withArgs(accounts[1].address, 1, amount);
+      let newTokenBalance = await bondingToken.balanceOf(accounts[1].address);
+      expect(newTokenBalance.lt(tokenBalance)).to.be.true;
+      let newTotalSupply = await bondingToken.totalSupply();
+      expect(newTotalSupply.lt(totalSupply)).to.be.true;
+      let newPoolBalance = await bondingToken.poolBalance();
+      expect(newPoolBalance.lt(poolBalance)).to.be.true;
+      let newContractBalance = await waffle.provider.getBalance(bondingToken.address);
+      expect(newContractBalance.lt(contractBalance)).to.be.true;
+      newContractBalance.should.eq(newPoolBalance);
+      let newAccountBalance = await waffle.provider.getBalance(accounts[1].address);
+      expect(newAccountBalance.gt(accountBalance)).to.be.true;
+      contractBalance.should.eq(newContractBalance.add(amount));
     });
   });
 
