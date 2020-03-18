@@ -199,6 +199,29 @@ describe("BondingToken", () => {
       expect(newAccountBalance.gt(accountBalance)).to.be.true;
       contractBalance.should.eq(newContractBalance.add(amount));
     });
+
+    it("...should allow users to burn all the tokens", async () => {
+      let iterator = (await bondingToken.totalSupply()).toNumber();
+      while (iterator > 0) {
+        let totalSupply = await bondingToken.totalSupply();
+        let amount = await bondingToken.tokenPrice(totalSupply);
+        await expect(bondingTokenInstance[1].burnToken())
+          .to.emit(bondingToken, "LogBurnToken")
+          .withArgs(accounts[1].address, 1, amount);
+        iterator--;
+      }
+      await expect(bondingTokenInstance[1].burnToken()).to.be.revertedWith(
+        "Not enough tokens to burn"
+      );
+      let balance = await bondingToken.balanceOf(accounts[1].address);
+      balance.should.eq(0);
+      let totalSupply = await bondingToken.totalSupply();
+      totalSupply.should.eq(0);
+      let poolBalance = await bondingToken.poolBalance();
+      poolBalance.should.eq(0);
+      let contractBalance = await waffle.provider.getBalance(bondingToken.address);
+      contractBalance.should.eq(0);
+    });
   });
 
   /** TODO:
