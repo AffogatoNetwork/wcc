@@ -17,7 +17,7 @@
     "verifywcc": "npx buidler verify-contract --contract-name WrappedCoffeeCoin --address 0x7dA7ee7c0655017F29AC1b883097b33B31b1c7D1"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "^2.4.0",
+    "@openzeppelin/contracts": "^4.4.2",
     "scrypt": "^6.0.3"
   },
   "devDependencies": {
